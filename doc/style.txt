@@ -1,5 +1,117 @@
 コーディングスタイルについて
 
-TBD..
+o. 読みやすさ優先。
 
+o. コメントは // を使用する。
+  /* */ は行内でコメントしたい場合のみ、原則として使用しない。
+
+o. クラス名は大文字で始める。
+  単語先頭を大文字にする。
+
+o. ローカル変数名は小文字で始める。
+  単語先頭を大文字にする。
+
+o. ファイルの最後には、余分な空行はなし。
+o. 最後の行も改行を持つこと。
+
+o. 横を 80 カラムで書く。
+o. 4TAB。
+o. スペースとタブは明確に区別する。
+
+----- h ファイル -----
+//
+// file.h
+// copyright (c) by xxx
+//
+// 概要を一言
+//
+// 説明
+//
+#ifndef FILE_H_
+#define FILE_H_
+
+#define xxxx		yyyy
+
+class BusAccessor	// C# 的
+class bus_accessor	// 伝統的
+{
+};
+
+//
+// このクラスの説明
+//
+class Hoge
+	: public HogeBase 
+{
+// static section
+ public:
+	//
+	// StaticVar1 の長い説明
+	//
+	static type StaticVar1;			// StaticVar1 の一言説明
+	static type StaticVar2;			// StaticVar2 の一言説明
+ private:
+	static type StaticPrivate;
+
+// instance section
+ public:
+	Hoge();
+	~Hoge();
+
+	Item GetHogeOfItem(int indexOfItems);
+
+	type PublicVar;
+ protected:
+ private:
+	type PrivateVar;
+};
+
+#endif
+
+----- cpp ファイル -----
+
+//
+// file.cpp
+// copyright (c) by xxx
+//
+// 概要を一言
+//
+// 説明
+//
+
+// static inline だと場合に応じてプロトタイプを書くかどうか考える。
+static inline bool FooFunc(int hoge);
+
+//
+// 関数の説明
+//
+static inline bool
+FooFunc(int hoge)
+{
+}
+
+//
+// 関数の説明
+//
+static inline bool
+GetHogeOfItemSub()
+{
+}
+
+//
+// 関数の説明
+//
+Item
+Hoge::GetHogeOfItem(int indexOfItems)
+{
+	type localVar;
+
+	for (int i = 0; i < 1000; i++) {
+		if (i == 0) {
+		} else {
+		}
+	}
+
+	return Item(localVar);
+}
 
