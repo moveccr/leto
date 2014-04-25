@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include "leto060.h"
+#include "stopwatch.h"
 
 extern const char *BUSIF_NAME;
 
 int
-print_result(const char *msg, timeval& start, timeval& end)
+print_result(const char *msg, Stopwatch& sw)
 {
-	timeval tv;
 	int msec;
 
-	timersub(&end, &start, &tv);
-	msec = (uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000;
+	msec = sw.msec();
 	printf("%s %4d msec\n", msg, msec);
 
 	return msec;
@@ -20,7 +19,7 @@ print_result(const char *msg, timeval& start, timeval& end)
 int
 main()
 {
-	timeval start, end, result;
+	Stopwatch sw;
 	BUS bus;
 	int i;
 	int r;
@@ -32,41 +31,43 @@ main()
 	busif_init(NULL);
 
 	/* まずざっと時間を測定。さすがに1秒かからないと想定 */
-	gettimeofday(&start, NULL);
+	sw.Start();
 	for (i = 0; i < 10000; i++) {
 		busif_060.read_long(bus);
 	}
-	gettimeofday(&end, NULL);
-	timersub(&end, &start, &result);
+	sw.Stop();
 	/* 1秒程度になるようなループ回数 N を求める */
-	NR = ((uint64_t)1000 * 1000 * 10000 / (uint64_t)result.tv_usec);
+	NR = ((uint64_t)1000 * 1000 * 10000 / sw.usec());
 	/* 10進 リスケーリング。計算結果が人間に分かりやすい。 */
 	N = 1;
 	while (NR > 10) { N *= 10; NR /= 10; }
 	printf("N=%qd\n", N);
 
-	gettimeofday(&start, NULL);
+	sw.Reset();
+	sw.Start();
 	for (i = 0; i < N; i++) {
 		busif_060.read_long(bus);
 	}
-	gettimeofday(&end, NULL);
-	r = print_result("long", start, end);
+	sw.Stop();
+	r = print_result("long", sw);
 	score += r * 76;
 
-	gettimeofday(&start, NULL);
+	sw.Reset();
+	sw.Start();
 	for (i = 0; i < N; i++) {
 		busif_060.read_byte(bus);
 	}
-	gettimeofday(&end, NULL);
-	r = print_result("byte", start, end);
+	sw.Stop();
+	r = print_result("byte", sw);
 	score += r * 12;
 
-	gettimeofday(&start, NULL);
+	sw.Reset();
+	sw.Start();
 	for (i = 0; i < N; i++) {
 		busif_060.read_word(bus);
 	}
-	gettimeofday(&end, NULL);
-	r = print_result("word", start, end);
+	sw.Stop();
+	r = print_result("word", sw);
 	score += r * 12;
 
 	/*
