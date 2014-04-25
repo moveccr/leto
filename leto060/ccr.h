@@ -83,3 +83,20 @@ class CCR4
 	uint8_t FlagX;
 };
 
+class CCR5
+{
+	// これが MPU だと思いねえ。
+
+ public:
+	CCR5()
+		: FlagNZVC(0), FlagX(0)
+	{
+	}
+
+	void print();
+	void eval();
+
+	uint16_t FlagNZVC;	// N,Z,V,C
+	uint16_t FlagX;		// X
+};
+

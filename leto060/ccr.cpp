@@ -64,3 +64,19 @@ CCR4::print()
 		FlagVC & 0x2 ? '1' : '0',
 		FlagVC & 0x1 ? '1' : '0');
 }
+
+void
+CCR5::eval()
+{
+}
+
+void
+CCR5::print()
+{
+	printf("XNZVC=%c%c%c%c%c\n",
+		FlagX ? '1' : '0',
+		FlagNZVC & 0x8000 ? '1' : '0',
+		FlagNZVC & 0x4000 ? '1' : '0',
+		FlagNZVC & 0x0001 ? '1' : '0',
+		FlagNZVC & 0x0100 ? '1' : '0');
+}

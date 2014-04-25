@@ -6,5 +6,8 @@ a.out:	leto060.o busif.o main.o
 perf1:	perf1.o busif.o
 	${CXX} -o $@ $>
 
+perf2:	perf2.o ccr.o
+	${CXX} -o $@ $>
+
 clean:
 	rm -rf *.o a.out perf1

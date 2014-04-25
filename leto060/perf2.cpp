@@ -91,6 +91,31 @@ main()
 	}
 	printf("CCR4 = %d\n", sw.msec());
 
+	sw.Reset();
+
+	{
+		CCR5 ccr;
+		sw.Start();
+		for (int i = 0; i < N; i++) {
+			// or.b エミュ
+			uint32_t d;
+			__asm__(
+				"or %3,%0\n\t"
+				"lahf\n\t"
+				"seto %%al\n\t"
+				"mov %%ax,%1\n\t"
+				"mov %%ax,%2\n\t"
+				: "+r"(d), "=g"(ccr.FlagNZVC), "=g"(ccr.FlagX)
+				: "r"(i)
+				: "%ax"
+			);
+			ccr.eval();
+		}
+		sw.Stop();
+		ccr.print();
+	}
+	printf("CCR5 = %d\n", sw.msec());
+
 	return 0;
 }
 
