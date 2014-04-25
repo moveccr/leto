@@ -65,24 +65,6 @@ class CCR3
 	bool FlagX: 1;
 };
 
-class CCR4
-{
-	// これが MPU だと思いねえ。
-
- public:
-	CCR4()
-		: FlagVC(0), FlagNZ(0), FlagX(0)
-	{
-	}
-
-	void print();
-	void eval();
-
-	uint32_t FlagNZ;	// N + (NZ)
-	uint8_t FlagVC;		// V + C
-	uint8_t FlagX;
-};
-
 class CCR5
 {
 	// これが MPU だと思いねえ。

@@ -50,22 +50,6 @@ CCR3::print()
 }
 
 void
-CCR4::eval()
-{
-}
-
-void
-CCR4::print()
-{
-	printf("XNZVC=%c%c%c%c%c\n",
-		FlagX & 0x1 ? '1' : '0',
-		FlagNZ & 0x80000000 ? '1' : '0',
-		!FlagNZ ? '1' : '0',
-		FlagVC & 0x2 ? '1' : '0',
-		FlagVC & 0x1 ? '1' : '0');
-}
-
-void
 CCR5::eval()
 {
 }

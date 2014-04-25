@@ -77,23 +77,6 @@ main()
 	sw.Reset();
 
 	{
-		CCR4 ccr;
-		sw.Start();
-		for (int i = 0; i < N; i++) {
-			// or.b エミュ
-			uint8_t d = (uint8_t)i;
-			ccr.FlagNZ = d << 24;
-			ccr.FlagVC = 0;
-			ccr.eval();
-		}
-		sw.Stop();
-		ccr.print();
-	}
-	printf("CCR4 = %d\n", sw.msec());
-
-	sw.Reset();
-
-	{
 		CCR5 ccr;
 		sw.Start();
 		for (int i = 0; i < N; i++) {
