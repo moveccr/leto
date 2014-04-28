@@ -59,8 +59,8 @@ CCR5::print()
 {
 	printf("XNZVC=%c%c%c%c%c\n",
 		FlagX ? '1' : '0',
-		FlagNZVC & 0x8000 ? '1' : '0',
-		FlagNZVC & 0x4000 ? '1' : '0',
-		FlagNZVC & 0x0001 ? '1' : '0',
-		FlagNZVC & 0x0100 ? '1' : '0');
+		FlagN() ? '1' : '0',
+		FlagZ() ? '1' : '0',
+		FlagV() ? '1' : '0',
+		FlagC() ? '1' : '0');
 }

@@ -67,7 +67,10 @@ class CCR3
 
 class CCR5
 {
-	// これが MPU だと思いねえ。
+	// x64 の FLAG レジスタ
+	static const int FLAG_CF = 0x0001;	// Carry
+	static const int FLAG_ZF = 0x0040;	// Zero
+	static const int FLAG_SF = 0x0080;	// Sign
 
  public:
 	CCR5()
@@ -77,6 +80,15 @@ class CCR5
 
 	void print();
 	void eval();
+
+	// LAHF 命令でフラグは AH (AX の上位バイト) にロードされる。
+	bool FlagN() { return (FlagNZVC & (FLAG_SF << 8)); }
+	bool FlagZ() { return (FlagNZVC & (FLAG_ZF << 8)); }
+	bool FlagC() { return (FlagNZVC & (FLAG_CF << 8)); }
+
+	// Vフラグに相当する OV フラグは LAHF 命令では取り出せないので
+	//  SETO 命令を使って AX のビット 0 を立てている。
+	bool FlagV() { return (FlagNZVC & 0x0001); }
 
 	uint16_t FlagNZVC;	// N,Z,V,C
 	uint16_t FlagX;		// X
