@@ -1,0 +1,6 @@
+BEGIN	ori_ccr
+	uint16_t next;
+	FETCH_LONG(next);
+	next &= ~ccrmask;
+	setccr(getccr() | next);
+END
