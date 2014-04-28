@@ -1,5 +1,8 @@
 CFLAGS = -O2
 
+perf2.o:	perf2.cpp ccr.h
+ccr.o:	ccr.cpp ccr.h
+
 a.out:	leto060.o busif.o main.o
 	${CXX} -o a.out $>
 
