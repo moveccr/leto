@@ -117,6 +117,7 @@ Leto060::IEU_fill_ipipe()
 	// 後半ワードだけが必要
 	prefetch_stage[0] = bus.data;
 	prefetch_count = 1;
+	return true;
 }
 
 // IEU でのワードフェッチ。
