@@ -16,88 +16,69 @@ main()
 	sw.Stop();
 	printf("LOOP = %d\n", sw.msec());
 
+#if 1
 	sw.Reset();
-
 	{
 		CCR1 ccr;
 		sw.Start();
 		for (int i = 0; i < N; i++) {
-			// or.b エミュ
-			uint8_t d = (uint8_t)i;
-			ccr.FlagNZ = d;
-			ccr.FlagS = d >> 7;
-			ccr.FlagV = 0;
-			ccr.FlagC = 0;
 			ccr.eval();
 		}
 		sw.Stop();
-		ccr.print();
 	}
-	printf("CCR1 = %d\n", sw.msec());
-
-	sw.Reset();
-
-	{
-		CCR2 ccr;
-		sw.Start();
-		for (int i = 0; i < N; i++) {
-			// or.b エミュ
-			uint8_t d = (uint8_t)i;
-			ccr.CCR =
-				(ccr.CCR & 0x10)			// X は保存
-				| ((d & 0x80) >> 4)			// N
-				| (d ? 0 : 0x4)				// Z
-			;								// V,C =0
-			ccr.eval();
-		}
-		sw.Stop();
-		ccr.print();
-	}
-	printf("CCR2 = %d\n", sw.msec());
-
-	sw.Reset();
-
-	{
-		CCR3 ccr;
-		sw.Start();
-		for (int i = 0; i < N; i++) {
-			// or.b エミュ
-			uint8_t d = (uint8_t)i;
-			ccr.FlagZ = (d == 0);
-			ccr.FlagN = d & 0x80;
-			ccr.FlagV = 0;
-			ccr.FlagC = 0;
-			ccr.eval();
-		}
-		sw.Stop();
-		ccr.print();
-	}
-	printf("CCR3 = %d\n", sw.msec());
-
+	printf("EVAL LOOP = %d\n", sw.msec());
+#endif
 	sw.Reset();
 
 	{
 		CCR5 ccr;
 		sw.Start();
 		for (int i = 0; i < N; i++) {
-			// or.b エミュ
-			uint32_t d;
+			// add.b エミュ
+			uint8_t d = (uint8_t)i;
+			uint8_t s = (uint8_t)10;
 			__asm__(
-				"or %3,%0\n\t"
+				"add %3,%0\n\t"
 				"lahf\n\t"
 				"seto %%al\n\t"
 				"mov %%ax,%1\n\t"
 				"mov %%ax,%2\n\t"
 				: "+r"(d), "=g"(ccr.FlagNZVC), "=g"(ccr.FlagX)
-				: "r"(i)
-				: "%ax"
+				: "r"(s)
+				: "%eax"
 			);
-			ccr.eval();
+		//	ccr.eval();
 		}
 		sw.Stop();
 		ccr.print();
 	}
 	printf("CCR5 = %d\n", sw.msec());
+
+
+	sw.Reset();
+
+	{
+		CCR1 ccr;
+		sw.Start();
+		for (int i = 0; i < N; i++) {
+			// add.b エミュ
+			uint8_t d = (uint8_t)i;
+			uint8_t s = (uint8_t)10;
+			uint32_t r;
+			r = (uint32_t)d + s;
+			ccr.FlagNZ = r;
+			ccr.FlagS = r >> 7;
+			ccr.FlagV = (s ^ r) & (d ^ r);
+			ccr.FlagC = r >> 1;
+			ccr.FlagX = ccr.FlagC;
+		//	ccr.eval();
+			__asm__("nop\n\t");
+		}
+		sw.Stop();
+		ccr.print();
+	}
+	printf("CCR1 = %d\n", sw.msec());
+
 
 	return 0;
 }
