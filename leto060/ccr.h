@@ -18,7 +18,7 @@ class CCR1
 
  public:
 	CCR1()
-		: FlagC(0), FlagV(0), FlagNZ(0), FlagS(0), FlagX(0)
+		: FlagNZ(0), FlagC(0), FlagV(0), FlagS(0), FlagX(0)
 	{
 	}
 
@@ -52,7 +52,7 @@ class CCR3
 	// これが MPU だと思いねえ。
  public:
 	CCR3()
-		: FlagC(0), FlagV(0), FlagZ(0), FlagN(0), FlagX(0)
+		: FlagZ(0), FlagC(0), FlagV(0), FlagN(0), FlagX(0)
 	{
 	}
 
