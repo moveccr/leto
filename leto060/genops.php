@@ -313,27 +313,6 @@ function expand_addr($op, $dst)
 	}
 }
 
-// アドレッシングモード mmmrrr の展開先パターンを返す。
-// "mmm000" から "mmm111" までの 8つ。
-function mmmrrr($mmm)
-{
-	$rrr = array("000", "001", "010", "011", "100", "101", "110", "111");
-	$rv = array();
-	foreach ($rrr as $r) {
-		$rv[] = "{$mmm}{$r}";
-	}
-	return $rv;
-}
-
-// "mmmrrr" を "rrrmmm" にして返す。MOVE のアドレッシングモード用。
-function swap_mmmrrr($mmmrrr)
-{
-	if (preg_match("/(...)(...)/", $mmmrrr, $match)) {
-		$mmmrrr = "{$match[2]}{$match[1]}";
-	}
-	return $mmmrrr;
-}
-
 
 //
 // ops.txt の処理
