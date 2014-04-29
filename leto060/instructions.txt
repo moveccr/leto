@@ -13,15 +13,15 @@
 ;---------------+------+----------+-------------+------------------
 0000000000111100|012346|          |ori_ccr		|ORI.B #<data>,CCR
 0000000001111100|012346|          |ori_sr		|ORI.W #<data>,SR
-00000000ssmmmrrr|012346|D M+-WXZ  |ori_SS_EA	|ORI.bwl #<data>,<ea>
+00000000SSmmmrrr|012346|D M+-WXZ  |ori_SS_EA	|ORI.bwl #<data>,<ea>
 0000001000111100|012346|          |andi_ccr		|ANDI.B #<data>,CCR
 0000001001111100|012346|          |andi_sr		|ANDI.W #<data>,SR
-00000010ssmmmrrr|012346|D M+-WXZ  |andi_SS_EA	|ANDI.bwl #<data>,<ea>
-00000100ssmmmrrr|012346|D M+-WXZ  |subi_SS_EA	|SUBI.bwl #<data>,<ea>
+00000010SSmmmrrr|012346|D M+-WXZ  |andi_SS_EA	|ANDI.bwl #<data>,<ea>
+00000100SSmmmrrr|012346|D M+-WXZ  |subi_SS_EA	|SUBI.bwl #<data>,<ea>
 0000011011mmmrrr|--2---|  M  WXZP |callm_EA		|CALLM #<data>,<ea>
-00000110ssmmmrrr|012346|D M+-WXZ  |addi_SS_EA	|ADDI.bwl #<data>,<ea>
-00000ss011mmmrrr|--234S|  M  WXZP |cmp2_SS_EA	|CMP2.bwl <ea>,Rn
-00000ss011mmmrrr|--234S|  M  WXZP |chk2_SS_EA	|CHK2.bwl <ea>,Rn
+00000110SSmmmrrr|012346|D M+-WXZ  |addi_SS_EA	|ADDI.bwl #<data>,<ea>
+00000SS011mmmrrr|--234S|  M  WXZP |cmp2_SS_EA	|CMP2.bwl <ea>,Rn
+00000SS011mmmrrr|--234S|  M  WXZP |chk2_SS_EA	|CHK2.bwl <ea>,Rn
 0000100000000xxx|012346|          |btst_imm_reg	|BTST.L #<data>,Dx
 0000100000mmmrrr|012346|  M+-WXZP |btst_imm_mem	|BTST.B #<data>,<ea>
 0000100001000xxx|012346|          |bchg_imm_reg	|BCHG.L #<data>,Dx
@@ -33,11 +33,11 @@
 0000101000111100|012346|          |eori_ccr		|EORI.B #<data>,CCR
 0000101001111100|012346|          |eori_sr		|EORI.W #<data>,SR
 0000101011mmmrrr|--2346|  M+-WXZ  |cas_EA		|CAS.B Dc,Du,<ea>
-00001010ssmmmrrr|012346|D M+-WXZ  |eori_SS_EA	|EORI.bwl #<data>,<ea>
-00001100ssmmmrrr|--2346|        P |cmpi_SS_EA	|CMPI.bwl #<data>,<ea>
-00001100ssmmmrrr|012346|D M+-WXZ  |cmpi_SS_EA	|CMPI.bwl #<data>,<ea>
-00001110ssmmmrrr|-12346|  M+-WXZ  |moves_SS_EA_reg	|MOVES.bwl <ea>,Rn
-00001110ssmmmrrr|-12346|  M+-WXZ  |moves_SS_reg_EA	|MOVES.bwl Rn,<ea>
+00001010SSmmmrrr|012346|D M+-WXZ  |eori_SS_EA	|EORI.bwl #<data>,<ea>
+00001100SSmmmrrr|--2346|        P |cmpi_SS_EA	|CMPI.bwl #<data>,<ea>
+00001100SSmmmrrr|012346|D M+-WXZ  |cmpi_SS_EA	|CMPI.bwl #<data>,<ea>
+00001110SSmmmrrr|-12346|  M+-WXZ  |moves_SS_EA_reg	|MOVES.bwl <ea>,Rn
+00001110SSmmmrrr|-12346|  M+-WXZ  |moves_SS_reg_EA	|MOVES.bwl Rn,<ea>
 000011s011111100|--234S|          |cas2		|CAS2.wl Dc1:Dc2,Du1:Du2,(Rn1):(Rn2)
 000011s011mmmrrr|--2346|  M+-WXZ  |cas_EA		|CAS.wl Dc,Du,<ea>
 0000nnn100000xxx|012346|          |btst_reg_reg	|BTST.L Dn,Dx
@@ -57,13 +57,13 @@
 0011RRRMMMmmmrrr|012346|DAM+-WXZPI|movew_EA_XX	|MOVE.W <ea>,<x>
 0100000011mmmrrr|0-----|D M+-WXZ  |move_sr_EA	|MOVE.W SR,<ea>
 0100000011mmmrrr|-12346|D M+-WXZ  |move_sr_EA	|MOVE.W SR,<ea>
-01000000ssmmmrrr|012346|D M+-WXZ  |negx_SS_EA	|NEGX.bwl <ea>
+01000000SSmmmrrr|012346|D M+-WXZ  |negx_SS_EA	|NEGX.bwl <ea>
 0100001011mmmrrr|-12346|D M+-WXZ  |move_ccr_EA	|MOVE.W CCR,<ea>
-01000010ssmmmrrr|012346|D M+-WXZ  |clr_SS_EA	|CLR.bwl <ea>
+01000010SSmmmrrr|012346|D M+-WXZ  |clr_SS_EA	|CLR.bwl <ea>
 0100010011mmmrrr|012346|D M+-WXZPI|move_EA_ccr	|MOVE.W <ea>,CCR
-01000100ssmmmrrr|012346|D M+-WXZ  |neg_SS_EA	|NEG.bwl <ea>
+01000100SSmmmrrr|012346|D M+-WXZ  |neg_SS_EA	|NEG.bwl <ea>
 0100011011mmmrrr|012346|D M+-WXZPI|move_EA_sr	|MOVE.W <ea>,SR
-01000110ssmmmrrr|012346|D M+-WXZ  |not_SS_EA	|NOT.bwl <ea>
+01000110SSmmmrrr|012346|D M+-WXZ  |not_SS_EA	|NOT.bwl <ea>
 0100100000001nnn|--2346|          |link			|LINK.L An,#<data>
 0100100000mmmrrr|012346|D M+-WXZ  |nbcd_EA		|NBCD.B <ea>
 0100100001000nnn|012346|          |swap			|SWAP.W Dn
@@ -74,9 +74,9 @@
 0100100111000nnn|--2346|          |extb			|EXTB.L Dn
 0100101011111100|012346|          |illegal		|ILLEGAL
 0100101011mmmrrr|012346|D M+-WXZ  |tas_EA		|TAS.B <ea>
-01001010ss001xxx|--2346| A        |tst_SS_reg	|TST.wl Ax
-01001010ssmmmrrr|--2346|        PI|tst_SS_mem	|TST.bwl <ea>
-01001010ssmmmrrr|012346|D M+-WXZ  |tst_SS_EA	|TST.bwl <ea>
+01001010SS001xxx|--2346| A        |tst_SS_reg	|TST.wl Ax
+01001010SSmmmrrr|--2346|        PI|tst_SS_mem	|TST.bwl <ea>
+01001010SSmmmrrr|012346|D M+-WXZ  |tst_SS_EA	|TST.bwl <ea>
 0100110000mmmrrr|--2346|D M+-WXZPI|mulu_EA		|MULU.L <ea>,Dl
 0100110000mmmrrr|--234S|D M+-WXZPI|mulu_EA_2	|MULU.L <ea>,Dh:Dl
 0100110000mmmrrr|--2346|D M+-WXZPI|muls_EA		|MULS.L <ea>,Dl
@@ -114,10 +114,10 @@
 0101cccc1111101s|--2346|          |	|TRAPcc.wl #<data>
 0101cccc11111100|--2346|          |	|TRAPcc
 0101cccc11mmmrrr|012346|D M+-WXZ  |	|Scc.B <ea>
-0101ddd0ss001xxx|012346| A        |	|ADDQ.wl #<data>,Ax
-0101ddd0ssmmmrrr|012346|D M+-WXZ  |	|ADDQ.bwl #<data>,<ea>
-0101ddd1ss001xxx|012346| A        |	|SUBQ.wl #<data>,Ax
-0101ddd1ssmmmrrr|012346|D M+-WXZ  |	|SUBQ.bwl #<data>,<ea>
+0101ddd0SS001xxx|012346| A        |	|ADDQ.wl #<data>,Ax
+0101ddd0SSmmmrrr|012346|D M+-WXZ  |	|ADDQ.bwl #<data>,<ea>
+0101ddd1SS001xxx|012346| A        |	|SUBQ.wl #<data>,Ax
+0101ddd1SSmmmrrr|012346|D M+-WXZ  |	|SUBQ.bwl #<data>,<ea>
 0110000000000000|012346|          |	|BRA.W <label>
 0110000011111111|--2346|          |	|BRA.L <label>
 01100000aaaaaaaa|012346|          |	|BRA.S <label>
@@ -129,42 +129,42 @@
 0110ccccaaaaaaaa|012346|          |	|Bcc.S <label>
 0111nnn0dddddddd|012346|          |	|MOVEQ.L #<data>,Dn
 1000nnn011mmmrrr|012346|D M+-WXZPI|	|DIVU.W <ea>,Dn
-1000nnn0ssmmmrrr|012346|D M+-WXZPI|	|OR.bwl <ea>,Dn
+1000nnn0SSmmmrrr|012346|D M+-WXZPI|	|OR.bwl <ea>,Dn
 1000nnn111mmmrrr|012346|D M+-WXZPI|	|DIVS.W <ea>,Dn
-1000nnn1ssmmmrrr|012346|  M+-WXZ  |	|OR.bwl Dn,<ea>
+1000nnn1SSmmmrrr|012346|  M+-WXZ  |	|OR.bwl Dn,<ea>
 1000yyy100000xxx|012346|          |	|SBCD.B Dx,Dy
 1000yyy100001xxx|012346|          |	|SBCD.B -(Ax),-(Ay)
 1000yyy101000xxx|--2346|          |	|PACK Dx,Dy,#<data>
 1000yyy101001xxx|--2346|          |	|PACK -(Ax),-(Ay),#<data>
 1000yyy110000xxx|--2346|          |	|UNPK Dx,Dy,#<data>
 1000yyy110001xxx|--2346|          |	|UNPK -(Ax),-(Ay),#<data>
-1001nnn0ss001xxx|012346| A        |	|SUB.wl Ax,Dn
-1001nnn0ssmmmrrr|012346|D M+-WXZPI|	|SUB.bwl <ea>,Dn
-1001nnn1ssmmmrrr|012346|  M+-WXZ  |	|SUB.bwl Dn,<ea>
+1001nnn0SS001xxx|012346| A        |	|SUB.wl Ax,Dn
+1001nnn0SSmmmrrr|012346|D M+-WXZPI|	|SUB.bwl <ea>,Dn
+1001nnn1SSmmmrrr|012346|  M+-WXZ  |	|SUB.bwl Dn,<ea>
 1001nnns11mmmrrr|012346|DAM+-WXZPI|	|SUBA.wl <ea>,An
-1001yyy1ss000xxx|012346|          |	|SUBX.bwl Dx,Dy
-1001yyy1ss001xxx|012346|          |	|SUBX.bwl -(Ax),-(Ay)
-1011nnn0ss001xxx|012346| A        |	|CMP.wl Ax,Dn
-1011nnn0ssmmmrrr|012346|D M+-WXZPI|	|CMP.bwl <ea>,Dn
-1011nnn1ssmmmrrr|012346|D M+-WXZ  |	|EOR.bwl Dn,<ea>
+1001yyy1SS000xxx|012346|          |	|SUBX.bwl Dx,Dy
+1001yyy1SS001xxx|012346|          |	|SUBX.bwl -(Ax),-(Ay)
+1011nnn0SS001xxx|012346| A        |	|CMP.wl Ax,Dn
+1011nnn0SSmmmrrr|012346|D M+-WXZPI|	|CMP.bwl <ea>,Dn
+1011nnn1SSmmmrrr|012346|D M+-WXZ  |	|EOR.bwl Dn,<ea>
 1011nnns11mmmrrr|012346|DAM+-WXZPI|	|CMPA.wl <ea>,An
-1011xxx1ss001yyy|012346|          |	|CMPM.bwl (Ay)+,(Ax)+
+1011xxx1SS001yyy|012346|          |	|CMPM.bwl (Ay)+,(Ax)+
 1100nnn011mmmrrr|012346|D M+-WXZPI|	|MULU.W <ea>,Dn
-1100nnn0ssmmmrrr|012346|D M+-WXZPI|	|AND.bwl <ea>,Dn
+1100nnn0SSmmmrrr|012346|D M+-WXZPI|	|AND.bwl <ea>,Dn
 1100nnn111mmmrrr|012346|D M+-WXZPI|	|MULS.W <ea>,Dn
-1100nnn1ssmmmrrr|012346|  M+-WXZ  |	|AND.bwl Dn,<ea>
+1100nnn1SSmmmrrr|012346|  M+-WXZ  |	|AND.bwl Dn,<ea>
 1100xxx101000yyy|012346|          |	|EXG.L Dx,Dy
 1100xxx101001yyy|012346|          |	|EXG.L Ax,Ay
 1100xxx110001yyy|012346|          |	|EXG.L Ay,Dx
 1100xxx110001yyy|012346|          |	|EXG.L Dx,Ay
 1100yyy100000xxx|012346|          |	|ABCD.B Dx,Dy
 1100yyy100001xxx|012346|          |	|ABCD.B -(Ax),-(Ay)
-1101nnn0ss001xxx|012346| A        |	|ADD.wl Ax,Dn
-1101nnn0ssmmmrrr|012346|D M+-WXZPI|	|ADD.bwl <ea>,Dn
-1101nnn1ssmmmrrr|012346|  M+-WXZ  |	|ADD.bwl Dn,<ea>
+1101nnn0SS001xxx|012346| A        |	|ADD.wl Ax,Dn
+1101nnn0SSmmmrrr|012346|D M+-WXZPI|	|ADD.bwl <ea>,Dn
+1101nnn1SSmmmrrr|012346|  M+-WXZ  |	|ADD.bwl Dn,<ea>
 1101nnns11mmmrrr|012346|DAM+-WXZPI|	|ADDA.wl <ea>,An
-1101yyy1ss000xxx|012346|          |	|ADDX.bwl Dx,Dy
-1101yyy1ss001xxx|012346|          |	|ADDX.bwl -(Ax),-(Ay)
+1101yyy1SS000xxx|012346|          |	|ADDX.bwl Dx,Dy
+1101yyy1SS001xxx|012346|          |	|ADDX.bwl -(Ax),-(Ay)
 1110000011mmmrrr|012346|  M+-WXZ  |	|ASR.W <ea>
 1110000111mmmrrr|012346|  M+-WXZ  |	|ASL.W <ea>
 1110001011mmmrrr|012346|  M+-WXZ  |	|LSR.W <ea>
@@ -205,22 +205,22 @@
 1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{#o:Dw}
 1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{Do:#w}
 1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{Do:Dw}
-1110ddd0ss000nnn|012346|          |	|ASR.bwl #<data>,Dn
-1110ddd0ss001nnn|012346|          |	|LSR.bwl #<data>,Dn
-1110ddd0ss010nnn|012346|          |	|ROXR.bwl #<data>,Dn
-1110ddd0ss011nnn|012346|          |	|ROR.bwl #<data>,Dn
-1110ddd1ss000nnn|012346|          |	|ASL.bwl #<data>,Dn
-1110ddd1ss001nnn|012346|          |	|LSL.bwl #<data>,Dn
-1110ddd1ss010nnn|012346|          |	|ROXL.bwl #<data>,Dn
-1110ddd1ss011nnn|012346|          |	|ROL.bwl #<data>,Dn
-1110xxx0ss100yyy|012346|          |	|ASR.bwl Dx,Dy
-1110xxx0ss101yyy|012346|          |	|LSR.bwl Dx,Dy
-1110xxx0ss110yyy|012346|          |	|ROXR.bwl Dx,Dy
-1110xxx0ss111yyy|012346|          |	|ROR.bwl Dx,Dy
-1110xxx1ss100yyy|012346|          |	|ASL.bwl Dx,Dy
-1110xxx1ss101yyy|012346|          |	|LSL.bwl Dx,Dy
-1110xxx1ss110yyy|012346|          |	|ROXL.bwl Dx,Dy
-1110xxx1ss111yyy|012346|          |	|ROL.bwl Dx,Dy
+1110ddd0SS000nnn|012346|          |	|ASR.bwl #<data>,Dn
+1110ddd0SS001nnn|012346|          |	|LSR.bwl #<data>,Dn
+1110ddd0SS010nnn|012346|          |	|ROXR.bwl #<data>,Dn
+1110ddd0SS011nnn|012346|          |	|ROR.bwl #<data>,Dn
+1110ddd1SS000nnn|012346|          |	|ASL.bwl #<data>,Dn
+1110ddd1SS001nnn|012346|          |	|LSL.bwl #<data>,Dn
+1110ddd1SS010nnn|012346|          |	|ROXL.bwl #<data>,Dn
+1110ddd1SS011nnn|012346|          |	|ROL.bwl #<data>,Dn
+1110xxx0SS100yyy|012346|          |	|ASR.bwl Dx,Dy
+1110xxx0SS101yyy|012346|          |	|LSR.bwl Dx,Dy
+1110xxx0SS110yyy|012346|          |	|ROXR.bwl Dx,Dy
+1110xxx0SS111yyy|012346|          |	|ROR.bwl Dx,Dy
+1110xxx1SS100yyy|012346|          |	|ASL.bwl Dx,Dy
+1110xxx1SS101yyy|012346|          |	|LSL.bwl Dx,Dy
+1110xxx1SS110yyy|012346|          |	|ROXL.bwl Dx,Dy
+1110xxx1SS111yyy|012346|          |	|ROL.bwl Dx,Dy
 1111000000000000|---3--|          |	|PFLUSHA
 1111000000000000|--M---|          |	|PFLUSHA
 1111000000000000|---3--|          |	|PFLUSH SFC,#<mask>

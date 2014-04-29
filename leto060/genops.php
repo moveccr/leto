@@ -74,12 +74,6 @@ function parse_instructions($fp)
 		list ($bits, $mpu, $addr, $name, $display_name) =
 			preg_split("/\|/", $line, -1, PREG_SPLIT_NO_EMPTY);
 
-		// 前処理
-		// 同じ変数名で長さが違うのが混在してると部分一致がとりづらいので
-		// ここで衝突しないものに変換しておく。
-		// o "s" と "ss" があるので "ss" を "SS" に
-		$bits = preg_replace("/ss/",     "SS",     $bits);
-
 		// 必ず "0"/"1" の2つに展開する文字はここで "-" に変換しておく
 		// "cc"(cache), "cccc"(Cond), "cccccc"(FPcc) はいずれも全展開。
 		$bits = preg_replace("/aaaaaaaa/", "--------", $bits);

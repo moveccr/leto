@@ -56,6 +56,8 @@
 
 		// MOVE命令の "xxxxxx" を "RRRMMM" に置換。読みやすさのため
 		$bits = preg_replace("/xxxxxx/", "RRRMMM", $bits);
+		// サイズは "s" と "ss" があるので "ss" のほうを "SS" に
+		$bits = preg_replace("/ss/", "SS", $bits);
 
 		// カラムを並び替えて出力
 		print "{$bits}|{$mpu}|{$addr}|\t|{$name}\n";
