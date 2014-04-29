@@ -12,6 +12,10 @@
 #include <sys/time.h>
 #include "stopwatch.h"
 
+// 最適化によってループが取り除かれてしまうのを防ぐため、
+// ループの最後に eval() を入れておくこと。
+#define eval()	__asm__("nop")
+
 class CCR1
 {
 	// これが MPU だと思いねえ。
@@ -23,7 +27,6 @@ class CCR1
 	}
 
 	void print();
-	void eval();
 
 	uint32_t FlagNZ;
 	uint8_t FlagC;
@@ -43,7 +46,6 @@ class CCR2
 	}
 
 	void print();
-	void eval();
 	uint8_t CCR;	// XNZVC
 };
 
@@ -57,7 +59,6 @@ class CCR3
 	}
 
 	void print();
-	void eval();
 	bool FlagZ: 1;
 	bool FlagC: 1;
 	bool FlagV: 1;
@@ -79,7 +80,6 @@ class CCR5
 	}
 
 	void print();
-	void eval();
 
 	// LAHF 命令でフラグは AH (AX の上位バイト) にロードされる。
 	bool FlagN() { return (FlagNZVC & (FLAG_SF << 8)); }

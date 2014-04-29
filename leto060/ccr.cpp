@@ -2,11 +2,6 @@
 #include "ccr.h"
 
 void
-CCR1::eval()
-{
-}
-
-void
 CCR1::print()
 {
 	printf("XNZVC=%c%c%c%c%c\n",
@@ -15,11 +10,6 @@ CCR1::print()
 		FlagNZ ? '0' : '1',
 		FlagV ? '1' : '0',
 		FlagC ? '1' : '0');
-}
-
-void
-CCR2::eval()
-{
 }
 
 void
@@ -34,11 +24,6 @@ CCR2::print()
 }
 
 void
-CCR3::eval()
-{
-}
-
-void
 CCR3::print()
 {
 	printf("XNZVC=%c%c%c%c%c\n",
@@ -47,11 +32,6 @@ CCR3::print()
 		FlagZ ? '1' : '0',
 		FlagV ? '1' : '0',
 		FlagC ? '1' : '0');
-}
-
-void
-CCR5::eval()
-{
 }
 
 void

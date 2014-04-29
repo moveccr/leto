@@ -22,7 +22,7 @@ main()
 		CCR1 ccr;
 		sw.Start();
 		for (int i = 0; i < N; i++) {
-			ccr.eval();
+			eval();
 		}
 		sw.Stop();
 	}
@@ -47,7 +47,6 @@ main()
 				: "r"(s)
 				: "%eax"
 			);
-		//	ccr.eval();
 		}
 		sw.Stop();
 		ccr.print();
@@ -71,8 +70,7 @@ main()
 			ccr.FlagV = (s ^ r) & (d ^ r);
 			ccr.FlagC = r >> 1;
 			ccr.FlagX = ccr.FlagC;
-		//	ccr.eval();
-			__asm__("nop\n\t");
+			eval();
 		}
 		sw.Stop();
 		ccr.print();
