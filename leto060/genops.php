@@ -62,7 +62,7 @@ function parse_instructions($fp)
 		}
 
 		// 1行はこんな感じ
-		// 00000000ssmmmrrr|012346|D M+-WXZ  |ori_SS_EA	|ORI.bwl #<data>,<ea>
+		// 00000000ssmmmrrr|012346|D M+-WXZ  |ori_S_EA	|ORI.bwl #<data>,<ea>
 		// 列は '|'(パイプ) で区切られている。
 		// $bits … 1ワード目のビットパターン
 		// $mpu  … MPU ごとのサポート有無
@@ -74,14 +74,8 @@ function parse_instructions($fp)
 		list ($bits, $mpu, $addr, $name, $display_name) =
 			preg_split("/\|/", $line, -1, PREG_SPLIT_NO_EMPTY);
 
-		// 必ず "0"/"1" の2つに展開する文字はここで "-" に変換しておく
-		// "cc"(cache), "cccc"(Cond), "cccccc"(FPcc) はいずれも全展開。
-		$bits = preg_replace("/aaaaaaaa/", "--------", $bits);
-		$bits = preg_replace("/dddddddd/", "--------", $bits);
-		$bits = preg_replace("/vvvv/",     "----",     $bits);
-		$bits = preg_replace("/(ddd|nnn|xxx|yyy)/", "---", $bits);
-		$bits = preg_replace("/cc/",       "--",       $bits);
-		$bits = preg_replace("/s/", "-", $bits);
+		// 必ず "0"/"1" に展開する文字はここで "." に変換しておく
+		$bits = preg_replace("/(ddd|nnn|xxx|yyy)/", "...", $bits);
 
 		$op = array(
 			"bits" => $bits,
@@ -144,15 +138,17 @@ function expand($op)
 	// 長い文字列を先に一致させること
 
 	// まずはサイズ関連。sss は1ワード目には出現しない。
-	// SS : %00, %01, %10  (%11 はない)
-	if (strstr($op["bits"], "SS") !== false) {
-		expand_SS($op);
+	// "s"     "SS"
+	// ----    -----
+	// %0 W    %00 B
+	// %1 L    %01 W
+	//         %10 L
+	if (strstr($op["bits"], "s") !== false) {
+		expand_s($op);
 		return;
 	}
-
-	// アドレッシングモード (通常)
-	if (strpos($op["bits"], "mmmrrr") !== false) {
-		expand_addr($op, "EA");
+	if (strstr($op["bits"], "SS") !== false) {
+		expand_SS($op);
 		return;
 	}
 
@@ -163,9 +159,15 @@ function expand($op)
 		return;
 	}
 
-	// "-" は無条件で "0"/"1" に置換できるビット
-	if (strpos($op["bits"], "-") !== false) {
-		expand_bit($op, "-", array("0", "1"));
+	// アドレッシングモード (通常)
+	if (strpos($op["bits"], "mmmrrr") !== false) {
+		expand_addr($op, "EA");
+		return;
+	}
+
+	// "." は無条件で "0"/"1" に置換できるビット
+	if (strpos($op["bits"], ".") !== false) {
+		expand_bit($op, "\\.", array("0", "1"));
 		return;
 	}
 
@@ -190,8 +192,25 @@ function expand_bit($op, $mask, $list)
 	}
 }
 
+// $op["bits"] のうち "s" をサイズに置換して expand() を再帰実行する。
+// その際 $op["size"] に "w", "l" を代入する。
+function expand_s($op)
+{
+	$sizeinfo = array(
+		array("pattern" => "0", "size" => "w"),
+		array("pattern" => "1", "size" => "l"),
+	);
+	foreach ($sizeinfo as $s) {
+		$op2 = $op;
+		$op2["bits"] = preg_replace("/s/", $s["pattern"], $op2["bits"], 1);
+		$op2["name"] = preg_replace("/S/", $s["size"], $op2["name"]);
+		$op2["size"] = $s["size"];
+		expand($op2);
+	}
+}
+
 // $op["bits"] のうち "SS" をサイズに置換して expand() を再帰実行する。
-// その際 $op["SS"] に "b", "w", "l" を代入する。
+// その際 $op["size"] に "b", "w", "l" を代入する。
 function expand_SS($op)
 {
 	$sizeinfo = array(
@@ -202,8 +221,8 @@ function expand_SS($op)
 	foreach ($sizeinfo as $s) {
 		$op2 = $op;
 		$op2["bits"] = preg_replace("/SS/", $s["pattern"], $op2["bits"], 1);
-		$op2["name"] = preg_replace("/SS/", $s["size"], $op2["name"]);
-		$op2["SS"] = $s["size"];
+		$op2["name"] = preg_replace("/S/", $s["size"], $op2["name"]);
+		$op2["size"] = $s["size"];
 		expand($op2);
 	}
 }
@@ -372,16 +391,17 @@ function output_jumptable()
 
 	$out .= "OpFunc_t OpTable[65536] = {\n";
 	for ($i = 0; $i < 65536; $i++) {
-		if ($i % 4 == 0) $out .= "\t";
+		if ($i % 4 == 0) $out .= " ";
 		if (isset($table[$i])) {
-			$out .= "Op_{$table[$i]["name"]}, ";
+			$funcname = "Op_{$table[$i]["name"]},";
 		} else {
-			$out .= "Op_illegal, ";
+			$funcname = "Op_invalid,";
 		}
+		$out .= sprintf(" %-16s", $funcname);
 
 		if ($i % 4 == 3) {
 			$i0 = $i - 3;
-			$out .= sprintf("	// \$%04x\n", $i0);
+			$out .= sprintf(" // \$%04x\n", $i0);
 		}
 	}
 

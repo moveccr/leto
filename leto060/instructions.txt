@@ -1,27 +1,38 @@
 ;
-; 鎌田さんところの全命令表から必要カラムだけ抜き出したもの。
+; 鎌田さんところの全命令表から geninst.php を使ってから加工したもの。
 ; http://www.retropc.net/x68000/software/develop/as/has060/m68k.htm
 ;
-; ビットパターンの凡例については元ページ参照。
+; ビットパターン
+;	0, 1   … 0 または 1 固定のビット
+;	.      … 0 および 1 の両方に展開される
+;   SS     … サイズ (b/w/l)
+;	s      … サイズ (w/l)
+;	mmmrrr … EA
+;	RRRMMM … MOVE 命令のソース用 EA
+;	xxx,yyy,ddd,nnn … "..." と同じ。
+;	          レジスタ番号など、単純に %000〜%111 に展開するもので
+;	          ここでは記号に意味はないが、オリジナルのままにしてある。
 ;
-; コード用ニーモニックは小文字の部分はそのまま使用される。
-; 大文字はマクロ展開する。
-;  SS .. サイズに応じて b/w/l に展開
-;  EA .. アドレッシングモードに応じて reg/mem に展開
+; 関数名
+;	ニーモニックのうち小文字の部分はそのまま使用される。
+;	大文字は以下のとおり展開する。
+;		S  .. "SS"/"s" のサイズに応じて b/w/l に展開
+;		EA .. アドレッシングモード mmmrrr に応じて reg/mem に展開
+;		XX .. アドレッシングモード RRRMMM に応じて reg/mem に展開
 ;
-;ビットパターン |MPU   |ADDRESSING|コード		|表示名
+;ビットパターン |MPU   |ADDRESSING|関数名		|表示名
 ;---------------+------+----------+-------------+------------------
 0000000000111100|012346|          |ori_ccr		|ORI.B #<data>,CCR
 0000000001111100|012346|          |ori_sr		|ORI.W #<data>,SR
-00000000SSmmmrrr|012346|D M+-WXZ  |ori_SS_EA	|ORI.bwl #<data>,<ea>
+00000000SSmmmrrr|012346|D M+-WXZ  |ori_S_EA		|ORI.bwl #<data>,<ea>
 0000001000111100|012346|          |andi_ccr		|ANDI.B #<data>,CCR
 0000001001111100|012346|          |andi_sr		|ANDI.W #<data>,SR
-00000010SSmmmrrr|012346|D M+-WXZ  |andi_SS_EA	|ANDI.bwl #<data>,<ea>
-00000100SSmmmrrr|012346|D M+-WXZ  |subi_SS_EA	|SUBI.bwl #<data>,<ea>
+00000010SSmmmrrr|012346|D M+-WXZ  |andi_S_EA	|ANDI.bwl #<data>,<ea>
+00000100SSmmmrrr|012346|D M+-WXZ  |subi_S_EA	|SUBI.bwl #<data>,<ea>
 0000011011mmmrrr|--2---|  M  WXZP |callm_EA		|CALLM #<data>,<ea>
-00000110SSmmmrrr|012346|D M+-WXZ  |addi_SS_EA	|ADDI.bwl #<data>,<ea>
-00000SS011mmmrrr|--234S|  M  WXZP |cmp2_SS_EA	|CMP2.bwl <ea>,Rn
-00000SS011mmmrrr|--234S|  M  WXZP |chk2_SS_EA	|CHK2.bwl <ea>,Rn
+00000110SSmmmrrr|012346|D M+-WXZ  |addi_S_EA	|ADDI.bwl #<data>,<ea>
+00000SS011mmmrrr|--234S|  M  WXZP |cmp2_S_EA	|CMP2.bwl <ea>,Rn
+00000SS011mmmrrr|--234S|  M  WXZP |chk2_S_EA	|CHK2.bwl <ea>,Rn
 0000100000000xxx|012346|          |btst_imm_reg	|BTST.L #<data>,Dx
 0000100000mmmrrr|012346|  M+-WXZP |btst_imm_mem	|BTST.B #<data>,<ea>
 0000100001000xxx|012346|          |bchg_imm_reg	|BCHG.L #<data>,Dx
@@ -33,50 +44,50 @@
 0000101000111100|012346|          |eori_ccr		|EORI.B #<data>,CCR
 0000101001111100|012346|          |eori_sr		|EORI.W #<data>,SR
 0000101011mmmrrr|--2346|  M+-WXZ  |cas_EA		|CAS.B Dc,Du,<ea>
-00001010SSmmmrrr|012346|D M+-WXZ  |eori_SS_EA	|EORI.bwl #<data>,<ea>
-00001100SSmmmrrr|--2346|        P |cmpi_SS_EA	|CMPI.bwl #<data>,<ea>
-00001100SSmmmrrr|012346|D M+-WXZ  |cmpi_SS_EA	|CMPI.bwl #<data>,<ea>
-00001110SSmmmrrr|-12346|  M+-WXZ  |moves_SS_EA_reg	|MOVES.bwl <ea>,Rn
-00001110SSmmmrrr|-12346|  M+-WXZ  |moves_SS_reg_EA	|MOVES.bwl Rn,<ea>
-000011s011111100|--234S|          |cas2		|CAS2.wl Dc1:Dc2,Du1:Du2,(Rn1):(Rn2)
-000011s011mmmrrr|--2346|  M+-WXZ  |cas_EA		|CAS.wl Dc,Du,<ea>
+00001010SSmmmrrr|012346|D M+-WXZ  |eori_S_EA	|EORI.bwl #<data>,<ea>
+00001100SSmmmrrr|--2346|        P |cmpi_S_EA	|CMPI.bwl #<data>,<ea>
+00001100SSmmmrrr|012346|D M+-WXZ  |cmpi_S_EA	|CMPI.bwl #<data>,<ea>
+00001110SSmmmrrr|-12346|  M+-WXZ  |moves_S_EA_reg	|MOVES.bwl <ea>,Rn
+00001110SSmmmrrr|-12346|  M+-WXZ  |moves_S_reg_EA	|MOVES.bwl Rn,<ea>
+000011s011111100|--234S|          |cas2_S	|CAS2.wl Dc1:Dc2,Du1:Du2,(Rn1):(Rn2)
+000011s011mmmrrr|--2346|  M+-WXZ  |cas_S_EA		|CAS.wl Dc,Du,<ea>
 0000nnn100000xxx|012346|          |btst_reg_reg	|BTST.L Dn,Dx
 0000nnn100mmmrrr|012346|  M+-WXZPI|btst_reg_mem	|BTST.B Dn,<ea>
 0000nnn101000xxx|012346|          |bchg_reg_reg	|BCHG.L Dn,Dx
 0000nnn101mmmrrr|012346|  M+-WXZ  |bchg_reg_mem	|BCHG.B Dn,<ea>
 0000nnn111000xxx|012346|          |bset_reg_reg	|BSET.L Dn,Dx
 0000nnn111mmmrrr|012346|  M+-WXZ  |bset_reg_mem	|BSET.B Dn,<ea>
-0000xxx10s001yyy|01234S|          |movep_to_reg	|MOVEP.wl (d,Ay),Dx
-0000xxx11s001yyy|01234S|          |movep_to_mem	|MOVEP.wl Dx,(d,Ay)
+0000xxx10s001yyy|01234S|          |movep_1		|MOVEP.wl (d,Ay),Dx
+0000xxx11s001yyy|01234S|          |movep_2		|MOVEP.wl Dx,(d,Ay)
 0000nnn110000xxx|012346|          |bclr_reg_reg	|BCLR.L Dn,Dx
 0000nnn110mmmrrr|012346|  M+-WXZ  |bclr_reg_mem	|BCLR.B Dn,<ea>
-0001RRRMMMmmmrrr|012346|D M+-WXZPI|moveb_EA_XX	|MOVE.B <ea>,<x>
-0010nnn001mmmrrr|012346|DAM+-WXZPI|moveal_EA	|MOVEA.L <ea>,An
-0010RRRMMMmmmrrr|012346|DAM+-WXZPI|movel_EA_XX	|MOVE.L <ea>,<x>
-0011nnn001mmmrrr|012346|DAM+-WXZPI|moveaw_EA	|MOVEA.W <ea>,An
-0011RRRMMMmmmrrr|012346|DAM+-WXZPI|movew_EA_XX	|MOVE.W <ea>,<x>
+0001RRRMMMmmmrrr|012346|D M+-WXZPI|move_b_EA_XX	|MOVE.B <ea>,<x>
+0010nnn001mmmrrr|012346|DAM+-WXZPI|movea_l_EA	|MOVEA.L <ea>,An
+0010RRRMMMmmmrrr|012346|DAM+-WXZPI|move_l_EA_XX	|MOVE.L <ea>,<x>
+0011nnn001mmmrrr|012346|DAM+-WXZPI|movea_w_EA	|MOVEA.W <ea>,An
+0011RRRMMMmmmrrr|012346|DAM+-WXZPI|move_w_EA_XX	|MOVE.W <ea>,<x>
 0100000011mmmrrr|0-----|D M+-WXZ  |move_sr_EA	|MOVE.W SR,<ea>
 0100000011mmmrrr|-12346|D M+-WXZ  |move_sr_EA	|MOVE.W SR,<ea>
-01000000SSmmmrrr|012346|D M+-WXZ  |negx_SS_EA	|NEGX.bwl <ea>
+01000000SSmmmrrr|012346|D M+-WXZ  |negx_S_EA	|NEGX.bwl <ea>
 0100001011mmmrrr|-12346|D M+-WXZ  |move_ccr_EA	|MOVE.W CCR,<ea>
-01000010SSmmmrrr|012346|D M+-WXZ  |clr_SS_EA	|CLR.bwl <ea>
+01000010SSmmmrrr|012346|D M+-WXZ  |clr_S_EA		|CLR.bwl <ea>
 0100010011mmmrrr|012346|D M+-WXZPI|move_EA_ccr	|MOVE.W <ea>,CCR
-01000100SSmmmrrr|012346|D M+-WXZ  |neg_SS_EA	|NEG.bwl <ea>
+01000100SSmmmrrr|012346|D M+-WXZ  |neg_S_EA		|NEG.bwl <ea>
 0100011011mmmrrr|012346|D M+-WXZPI|move_EA_sr	|MOVE.W <ea>,SR
-01000110SSmmmrrr|012346|D M+-WXZ  |not_SS_EA	|NOT.bwl <ea>
+01000110SSmmmrrr|012346|D M+-WXZ  |not_S_EA		|NOT.bwl <ea>
 0100100000001nnn|--2346|          |link			|LINK.L An,#<data>
 0100100000mmmrrr|012346|D M+-WXZ  |nbcd_EA		|NBCD.B <ea>
 0100100001000nnn|012346|          |swap			|SWAP.W Dn
 0100100001001ddd|-12346|          |bkpt			|BKPT #<data>
 0100100001mmmrrr|012346|  M  WXZP |pea			|PEA.L <ea>
-010010001s000nnn|012346|          |ext			|EXT.wl Dn
-010010001smmmrrr|012346|  M -WXZ  |movem_to_mem	|MOVEM.wl <list>,<ea>
+010010001s000nnn|012346|          |ext_S		|EXT.wl Dn
+010010001smmmrrr|012346|  M -WXZ  |movem_S_mem	|MOVEM.wl <list>,<ea>
 0100100111000nnn|--2346|          |extb			|EXTB.L Dn
 0100101011111100|012346|          |illegal		|ILLEGAL
 0100101011mmmrrr|012346|D M+-WXZ  |tas_EA		|TAS.B <ea>
-01001010SS001xxx|--2346| A        |tst_SS_reg	|TST.wl Ax
-01001010SSmmmrrr|--2346|        PI|tst_SS_mem	|TST.bwl <ea>
-01001010SSmmmrrr|012346|D M+-WXZ  |tst_SS_EA	|TST.bwl <ea>
+01001010SS001xxx|--2346| A        |tst_S_reg	|TST.wl Ax
+01001010SSmmmrrr|--2346|        PI|tst_S_mem	|TST.bwl <ea>
+01001010SSmmmrrr|012346|D M+-WXZ  |tst_S_EA		|TST.bwl <ea>
 0100110000mmmrrr|--2346|D M+-WXZPI|mulu_EA		|MULU.L <ea>,Dl
 0100110000mmmrrr|--234S|D M+-WXZPI|mulu_EA_2	|MULU.L <ea>,Dh:Dl
 0100110000mmmrrr|--2346|D M+-WXZPI|muls_EA		|MULS.L <ea>,Dl
@@ -88,549 +99,136 @@
 0100110001mmmrrr|--2346|D M+-WXZPI|divsl_EA		|DIVSL.L <ea>,Dr:Dq
 0100110001mmmrrr|--234S|D M+-WXZPI|divs_EA_2	|DIVS.L <ea>,Dr:Dq
 010011001smmmrrr|012346|  M+ WXZP |movem_S_EA	|MOVEM.wl <ea>,<list>
-010011100100vvvv|012346|          |	|TRAP #<vector>
-0100111001010nnn|012346|          |	|LINK.W An,#<data>
-0100111001011nnn|012346|          |	|UNLK An
-0100111001100nnn|012346|          |	|MOVE.L An,USP
-0100111001101nnn|012346|          |	|MOVE.L USP,An
-0100111001110000|012346|          |	|RESET
-0100111001110001|012346|          |	|NOP
-0100111001110010|012346|          |	|STOP #<data>
-0100111001110011|012346|          |	|RTE
-0100111001110100|-12346|          |	|RTD #<data>
-0100111001110101|012346|          |	|RTS
-0100111001110110|012346|          |	|TRAPV
-0100111001110111|012346|          |	|RTR
-0100111001111010|-12346|          |	|MOVEC.L Rc,Rn
-0100111001111011|-12346|          |	|MOVEC.L Rn,Rc
-010011100111rnnn|-2----|          |	|RTM Rn
-0100111010mmmrrr|012346|  M  WXZP |	|JSR <ea>
-0100111011mmmrrr|012346|  M  WXZP |	|JMP <ea>
-0100nnn100mmmrrr|--2346|D M+-WXZPI|	|CHK.L <ea>,Dn
-0100nnn110mmmrrr|012346|D M+-WXZPI|	|CHK.W <ea>,Dn
-0100nnn111mmmrrr|012346|  M  WXZP |	|LEA.L <ea>,An
-0101000111001nnn|012346|          |	|DBRA.W Dn,<label>
-0101cccc11001nnn|012346|          |	|DBcc.W Dn,<label>
-0101cccc1111101s|--2346|          |	|TRAPcc.wl #<data>
-0101cccc11111100|--2346|          |	|TRAPcc
-0101cccc11mmmrrr|012346|D M+-WXZ  |	|Scc.B <ea>
-0101ddd0SS001xxx|012346| A        |	|ADDQ.wl #<data>,Ax
-0101ddd0SSmmmrrr|012346|D M+-WXZ  |	|ADDQ.bwl #<data>,<ea>
-0101ddd1SS001xxx|012346| A        |	|SUBQ.wl #<data>,Ax
-0101ddd1SSmmmrrr|012346|D M+-WXZ  |	|SUBQ.bwl #<data>,<ea>
-0110000000000000|012346|          |	|BRA.W <label>
-0110000011111111|--2346|          |	|BRA.L <label>
-01100000aaaaaaaa|012346|          |	|BRA.S <label>
-0110000100000000|012346|          |	|BSR.W <label>
-0110000111111111|--2346|          |	|BSR.L <label>
-01100001aaaaaaaa|012346|          |	|BSR.S <label>
-0110cccc00000000|012346|          |	|Bcc.W <label>
-0110cccc11111111|--2346|          |	|Bcc.L <label>
-0110ccccaaaaaaaa|012346|          |	|Bcc.S <label>
-0111nnn0dddddddd|012346|          |	|MOVEQ.L #<data>,Dn
-1000nnn011mmmrrr|012346|D M+-WXZPI|	|DIVU.W <ea>,Dn
-1000nnn0SSmmmrrr|012346|D M+-WXZPI|	|OR.bwl <ea>,Dn
-1000nnn111mmmrrr|012346|D M+-WXZPI|	|DIVS.W <ea>,Dn
-1000nnn1SSmmmrrr|012346|  M+-WXZ  |	|OR.bwl Dn,<ea>
-1000yyy100000xxx|012346|          |	|SBCD.B Dx,Dy
-1000yyy100001xxx|012346|          |	|SBCD.B -(Ax),-(Ay)
-1000yyy101000xxx|--2346|          |	|PACK Dx,Dy,#<data>
-1000yyy101001xxx|--2346|          |	|PACK -(Ax),-(Ay),#<data>
-1000yyy110000xxx|--2346|          |	|UNPK Dx,Dy,#<data>
-1000yyy110001xxx|--2346|          |	|UNPK -(Ax),-(Ay),#<data>
-1001nnn0SS001xxx|012346| A        |	|SUB.wl Ax,Dn
-1001nnn0SSmmmrrr|012346|D M+-WXZPI|	|SUB.bwl <ea>,Dn
-1001nnn1SSmmmrrr|012346|  M+-WXZ  |	|SUB.bwl Dn,<ea>
-1001nnns11mmmrrr|012346|DAM+-WXZPI|	|SUBA.wl <ea>,An
-1001yyy1SS000xxx|012346|          |	|SUBX.bwl Dx,Dy
-1001yyy1SS001xxx|012346|          |	|SUBX.bwl -(Ax),-(Ay)
-1011nnn0SS001xxx|012346| A        |	|CMP.wl Ax,Dn
-1011nnn0SSmmmrrr|012346|D M+-WXZPI|	|CMP.bwl <ea>,Dn
-1011nnn1SSmmmrrr|012346|D M+-WXZ  |	|EOR.bwl Dn,<ea>
-1011nnns11mmmrrr|012346|DAM+-WXZPI|	|CMPA.wl <ea>,An
-1011xxx1SS001yyy|012346|          |	|CMPM.bwl (Ay)+,(Ax)+
-1100nnn011mmmrrr|012346|D M+-WXZPI|	|MULU.W <ea>,Dn
-1100nnn0SSmmmrrr|012346|D M+-WXZPI|	|AND.bwl <ea>,Dn
-1100nnn111mmmrrr|012346|D M+-WXZPI|	|MULS.W <ea>,Dn
-1100nnn1SSmmmrrr|012346|  M+-WXZ  |	|AND.bwl Dn,<ea>
-1100xxx101000yyy|012346|          |	|EXG.L Dx,Dy
-1100xxx101001yyy|012346|          |	|EXG.L Ax,Ay
-1100xxx110001yyy|012346|          |	|EXG.L Ay,Dx
-1100xxx110001yyy|012346|          |	|EXG.L Dx,Ay
-1100yyy100000xxx|012346|          |	|ABCD.B Dx,Dy
-1100yyy100001xxx|012346|          |	|ABCD.B -(Ax),-(Ay)
-1101nnn0SS001xxx|012346| A        |	|ADD.wl Ax,Dn
-1101nnn0SSmmmrrr|012346|D M+-WXZPI|	|ADD.bwl <ea>,Dn
-1101nnn1SSmmmrrr|012346|  M+-WXZ  |	|ADD.bwl Dn,<ea>
-1101nnns11mmmrrr|012346|DAM+-WXZPI|	|ADDA.wl <ea>,An
-1101yyy1SS000xxx|012346|          |	|ADDX.bwl Dx,Dy
-1101yyy1SS001xxx|012346|          |	|ADDX.bwl -(Ax),-(Ay)
-1110000011mmmrrr|012346|  M+-WXZ  |	|ASR.W <ea>
-1110000111mmmrrr|012346|  M+-WXZ  |	|ASL.W <ea>
-1110001011mmmrrr|012346|  M+-WXZ  |	|LSR.W <ea>
-1110001111mmmrrr|012346|  M+-WXZ  |	|LSL.W <ea>
-1110010011mmmrrr|012346|  M+-WXZ  |	|ROXR.W <ea>
-1110010111mmmrrr|012346|  M+-WXZ  |	|ROXL.W <ea>
-1110011011mmmrrr|012346|  M+-WXZ  |	|ROR.W <ea>
-1110011111mmmrrr|012346|  M+-WXZ  |	|ROL.W <ea>
-1110100011mmmrrr|--2346|D M  WXZP |	|BFTST <ea>{#o:#w}
-1110100011mmmrrr|--2346|D M  WXZP |	|BFTST <ea>{#o:Dw}
-1110100011mmmrrr|--2346|D M  WXZP |	|BFTST <ea>{Do:#w}
-1110100011mmmrrr|--2346|D M  WXZP |	|BFTST <ea>{Do:Dw}
-1110100111mmmrrr|--2346|D M  WXZP |	|BFEXTU <ea>{#o:#w},Dn
-1110100111mmmrrr|--2346|D M  WXZP |	|BFEXTU <ea>{#o:Dw},Dn
-1110100111mmmrrr|--2346|D M  WXZP |	|BFEXTU <ea>{Do:#w},Dn
-1110100111mmmrrr|--2346|D M  WXZP |	|BFEXTU <ea>{Do:Dw},Dn
-1110101011mmmrrr|--2346|D M  WXZ  |	|BFCHG <ea>{#o:#w}
-1110101011mmmrrr|--2346|D M  WXZ  |	|BFCHG <ea>{#o:Dw}
-1110101011mmmrrr|--2346|D M  WXZ  |	|BFCHG <ea>{Do:#w}
-1110101011mmmrrr|--2346|D M  WXZ  |	|BFCHG <ea>{Do:Dw}
-1110101111mmmrrr|--2346|D M  WXZP |	|BFEXTS <ea>{#o:#w},Dn
-1110101111mmmrrr|--2346|D M  WXZP |	|BFEXTS <ea>{#o:Dw},Dn
-1110101111mmmrrr|--2346|D M  WXZP |	|BFEXTS <ea>{Do:#w},Dn
-1110101111mmmrrr|--2346|D M  WXZP |	|BFEXTS <ea>{Do:Dw},Dn
-1110110011mmmrrr|--2346|D M  WXZ  |	|BFCLR <ea>{#o:#w}
-1110110011mmmrrr|--2346|D M  WXZ  |	|BFCLR <ea>{#o:Dw}
-1110110011mmmrrr|--2346|D M  WXZ  |	|BFCLR <ea>{Do:#w}
-1110110011mmmrrr|--2346|D M  WXZ  |	|BFCLR <ea>{Do:Dw}
-1110110111mmmrrr|--2346|D M  WXZP |	|BFFFO <ea>{#o:#w},Dn
-1110110111mmmrrr|--2346|D M  WXZP |	|BFFFO <ea>{#o:Dw},Dn
-1110110111mmmrrr|--2346|D M  WXZP |	|BFFFO <ea>{Do:#w},Dn
-1110110111mmmrrr|--2346|D M  WXZP |	|BFFFO <ea>{Do:Dw},Dn
-1110111011mmmrrr|--2346|D M  WXZ  |	|BFSET <ea>{#o:#w}
-1110111011mmmrrr|--2346|D M  WXZ  |	|BFSET <ea>{#o:Dw}
-1110111011mmmrrr|--2346|D M  WXZ  |	|BFSET <ea>{Do:#w}
-1110111011mmmrrr|--2346|D M  WXZ  |	|BFSET <ea>{Do:Dw}
-1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{#o:#w}
-1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{#o:Dw}
-1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{Do:#w}
-1110111111mmmrrr|--2346|D M  WXZ  |	|BFINS Dn,<ea>{Do:Dw}
-1110ddd0SS000nnn|012346|          |	|ASR.bwl #<data>,Dn
-1110ddd0SS001nnn|012346|          |	|LSR.bwl #<data>,Dn
-1110ddd0SS010nnn|012346|          |	|ROXR.bwl #<data>,Dn
-1110ddd0SS011nnn|012346|          |	|ROR.bwl #<data>,Dn
-1110ddd1SS000nnn|012346|          |	|ASL.bwl #<data>,Dn
-1110ddd1SS001nnn|012346|          |	|LSL.bwl #<data>,Dn
-1110ddd1SS010nnn|012346|          |	|ROXL.bwl #<data>,Dn
-1110ddd1SS011nnn|012346|          |	|ROL.bwl #<data>,Dn
-1110xxx0SS100yyy|012346|          |	|ASR.bwl Dx,Dy
-1110xxx0SS101yyy|012346|          |	|LSR.bwl Dx,Dy
-1110xxx0SS110yyy|012346|          |	|ROXR.bwl Dx,Dy
-1110xxx0SS111yyy|012346|          |	|ROR.bwl Dx,Dy
-1110xxx1SS100yyy|012346|          |	|ASL.bwl Dx,Dy
-1110xxx1SS101yyy|012346|          |	|LSL.bwl Dx,Dy
-1110xxx1SS110yyy|012346|          |	|ROXL.bwl Dx,Dy
-1110xxx1SS111yyy|012346|          |	|ROL.bwl Dx,Dy
-1111000000000000|---3--|          |	|PFLUSHA
-1111000000000000|--M---|          |	|PFLUSHA
-1111000000000000|---3--|          |	|PFLUSH SFC,#<mask>
-1111000000000000|---3--|          |	|PFLUSH DFC,#<mask>
-1111000000000000|---3--|          |	|PFLUSH Dn,#<mask>
-1111000000000000|---3--|          |	|PFLUSH #<data>,#<mask>
-1111000000000000|--M---|          |	|PFLUSH SFC,#<mask>
-1111000000000000|--M---|          |	|PFLUSH DFC,#<mask>
-1111000000000000|--M---|          |	|PFLUSH Dn,#<mask>
-1111000000000000|--M---|          |	|PFLUSH #<data>,#<mask>
-1111000000000000|--M---|          |	|PFLUSHS SFC,#<mask>
-1111000000000000|--M---|          |	|PFLUSHS DFC,#<mask>
-1111000000000000|--M---|          |	|PFLUSHS Dn,#<mask>
-1111000000000000|--M---|          |	|PFLUSHS #<data>,#<mask>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.L <ea>,TTn
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVEFD.L <ea>,TTn
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.L TTn,<ea>
-1111000000mmmrrr|--M3--|  M  WXZ  |	|PLOADW SFC,<ea>
-1111000000mmmrrr|--M3--|  M  WXZ  |	|PLOADW DFC,<ea>
-1111000000mmmrrr|--M3--|  M  WXZ  |	|PLOADW Dn,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PLOADW #<data>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PLOADW #<data>,<ea>
-1111000000mmmrrr|--M3--|  M  WXZ  |	|PLOADR SFC,<ea>
-1111000000mmmrrr|--M3--|  M  WXZ  |	|PLOADR DFC,<ea>
-1111000000mmmrrr|--M3--|  M  WXZ  |	|PLOADR Dn,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PLOADR #<data>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PLOADR #<data>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PVALID.L VAL,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PVALID.L An,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PFLUSH SFC,#<mask>,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PFLUSH DFC,#<mask>,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PFLUSH Dn,#<mask>,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PFLUSH #<data>,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSH SFC,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSH DFC,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSH Dn,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSH #<data>,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSHS SFC,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSHS DFC,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSHS Dn,#<mask>,<ea>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PFLUSHS #<data>,#<mask>,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.L <ea>,TC
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.L <ea>,TC
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVEFD.L <ea>,TC
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.L TC,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.L TC,<ea>
-1111000000mmmrrr|--M---|  M+-WXZPI|	|PMOVE.Q <ea>,DRP
-1111000000mmmrrr|--M---|  M+-WXZ  |	|PMOVE.Q DRP,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.Q <ea>,SRP
-1111000000mmmrrr|--M---|  M+-WXZPI|	|PMOVE.Q <ea>,SRP
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVEFD.Q <ea>,SRP
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.Q SRP,<ea>
-1111000000mmmrrr|--M---|  M+-WXZ  |	|PMOVE.Q SRP,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.Q <ea>,CRP
-1111000000mmmrrr|--M---|  M+-WXZPI|	|PMOVE.Q <ea>,CRP
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVEFD.Q <ea>,CRP
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.Q CRP,<ea>
-1111000000mmmrrr|--M---|  M+-WXZ  |	|PMOVE.Q CRP,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.B <ea>,CAL
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.B CAL,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.B <ea>,VAL
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.B VAL,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.B <ea>,SCC
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.B SCC,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.W <ea>,AC
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.W AC,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.W <ea>,MMUSR
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.W <ea>,PSR
-1111000000mmmrrr|---3--|  M  WXZ  |	|PMOVE.W MMUSR,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.W PSR,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.W <ea>,PCSR
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.W PCSR,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.W <ea>,BADn
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.W BADn,<ea>
-1111000000mmmrrr|--M---|DAM+-WXZPI|	|PMOVE.W <ea>,BACn
-1111000000mmmrrr|--M---|DAM+-WXZ  |	|PMOVE.W BACn,<ea>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW SFC,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW SFC,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW DFC,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW DFC,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW Dn,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW Dn,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW #<data>,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW #<data>,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW SFC,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW SFC,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW DFC,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW DFC,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW Dn,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW Dn,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTW #<data>,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTW #<data>,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR SFC,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR SFC,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR DFC,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR DFC,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR Dn,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR Dn,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR #<data>,<ea>,#<level>
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR #<data>,<ea>,#<level>
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR SFC,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR SFC,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR DFC,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR DFC,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR Dn,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR Dn,<ea>,#<level>,An
-1111000000mmmrrr|---3--|  M  WXZ  |	|PTESTR #<data>,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M  WXZ  |	|PTESTR #<data>,<ea>,#<level>,An
-1111000000mmmrrr|--M---|  M+-WXZPI|	|PFLUSHR <ea>
-1111000001001nnn|--M---|          |	|PDBcc.W Dn,<label>
-111100000111101s|--M---|          |	|PTRAPcc.wl #<data>
-1111000001111100|--M---|          |	|PTRAPcc
-1111000001mmmrrr|--M---|D M+-WXZ  |	|PScc.B <ea>
-111100001scccccc|--M---|          |	|PBcc.wl <label>
-1111000100mmmrrr|--M---|  M -WXZ  |	|PSAVE <ea>
-1111000101mmmrrr|--M---|  M+ WXZP |	|PRESTORE <ea>
-1111001000000000|--CC46|          |	|FTST.X FPm
-1111001000000000|--CC46|          |	|FMOVE.X FPm,FPn
-1111001000000000|--CCS6|          |	|FINT.X FPm,FPn
-1111001000000000|--CCSS|          |	|FSINH.X FPm,FPn
-1111001000000000|--CCS6|          |	|FINTRZ.X FPm,FPn
-1111001000000000|--CC46|          |	|FSQRT.X FPm,FPn
-1111001000000000|--CCSS|          |	|FLOGNP1.X FPm,FPn
-1111001000000000|--CCSS|          |	|FETOXM1.X FPm,FPn
-1111001000000000|--CCSS|          |	|FTANH.X FPm,FPn
-1111001000000000|--CCSS|          |	|FATAN.X FPm,FPn
-1111001000000000|--CCSS|          |	|FASIN.X FPm,FPn
-1111001000000000|--CCSS|          |	|FATANH.X FPm,FPn
-1111001000000000|--CCSS|          |	|FSIN.X FPm,FPn
-1111001000000000|--CCSS|          |	|FTAN.X FPm,FPn
-1111001000000000|--CCSS|          |	|FETOX.X FPm,FPn
-1111001000000000|--CCSS|          |	|FTWOTOX.X FPm,FPn
-1111001000000000|--CCSS|          |	|FTENTOX.X FPm,FPn
-1111001000000000|--CCSS|          |	|FLOGN.X FPm,FPn
-1111001000000000|--CCSS|          |	|FLOG10.X FPm,FPn
-1111001000000000|--CCSS|          |	|FLOG2.X FPm,FPn
-1111001000000000|--CC46|          |	|FABS.X FPm,FPn
-1111001000000000|--CCSS|          |	|FCOSH.X FPm,FPn
-1111001000000000|--CC46|          |	|FNEG.X FPm,FPn
-1111001000000000|--CCSS|          |	|FACOS.X FPm,FPn
-1111001000000000|--CCSS|          |	|FCOS.X FPm,FPn
-1111001000000000|--CCSS|          |	|FGETEXP.X FPm,FPn
-1111001000000000|--CCSS|          |	|FGETMAN.X FPm,FPn
-1111001000000000|--CC46|          |	|FDIV.X FPm,FPn
-1111001000000000|--CCSS|          |	|FMOD.X FPm,FPn
-1111001000000000|--CC46|          |	|FADD.X FPm,FPn
-1111001000000000|--CC46|          |	|FMUL.X FPm,FPn
-1111001000000000|--CCS6|          |	|FSGLDIV.X FPm,FPn
-1111001000000000|--CCSS|          |	|FREM.X FPm,FPn
-1111001000000000|--CCSS|          |	|FSCALE.X FPm,FPn
-1111001000000000|--CCS6|          |	|FSGLMUL.X FPm,FPn
-1111001000000000|--CC46|          |	|FSUB.X FPm,FPn
-1111001000000000|--CC46|          |	|FCMP.X FPm,FPn
-1111001000000000|----46|          |	|FSMOVE.X FPm,FPn
-1111001000000000|----46|          |	|FSSQRT.X FPm,FPn
-1111001000000000|----46|          |	|FDMOVE.X FPm,FPn
-1111001000000000|----46|          |	|FDSQRT.X FPm,FPn
-1111001000000000|----46|          |	|FSABS.X FPm,FPn
-1111001000000000|----46|          |	|FSNEG.X FPm,FPn
-1111001000000000|----46|          |	|FDABS.X FPm,FPn
-1111001000000000|----46|          |	|FDNEG.X FPm,FPn
-1111001000000000|----46|          |	|FSDIV.X FPm,FPn
-1111001000000000|----46|          |	|FSADD.X FPm,FPn
-1111001000000000|----46|          |	|FSMUL.X FPm,FPn
-1111001000000000|----46|          |	|FDDIV.X FPm,FPn
-1111001000000000|----46|          |	|FDADD.X FPm,FPn
-1111001000000000|----46|          |	|FDMUL.X FPm,FPn
-1111001000000000|----46|          |	|FSSUB.X FPm,FPn
-1111001000000000|----46|          |	|FDSUB.X FPm,FPn
-1111001000000000|--CCSS|          |	|FSINCOS.X FPm,FPc:FPs
-1111001000000000|--CCS6|          |	|FINT.X FPn
-1111001000000000|--CCSS|          |	|FSINH.X FPn
-1111001000000000|--CCS6|          |	|FINTRZ.X FPn
-1111001000000000|--CC46|          |	|FSQRT.X FPn
-1111001000000000|--CCSS|          |	|FLOGNP1.X FPn
-1111001000000000|--CCSS|          |	|FETOXM1.X FPn
-1111001000000000|--CCSS|          |	|FTANH.X FPn
-1111001000000000|--CCSS|          |	|FATAN.X FPn
-1111001000000000|--CCSS|          |	|FASIN.X FPn
-1111001000000000|--CCSS|          |	|FATANH.X FPn
-1111001000000000|--CCSS|          |	|FSIN.X FPn
-1111001000000000|--CCSS|          |	|FTAN.X FPn
-1111001000000000|--CCSS|          |	|FETOX.X FPn
-1111001000000000|--CCSS|          |	|FTWOTOX.X FPn
-1111001000000000|--CCSS|          |	|FTENTOX.X FPn
-1111001000000000|--CCSS|          |	|FLOGN.X FPn
-1111001000000000|--CCSS|          |	|FLOG10.X FPn
-1111001000000000|--CCSS|          |	|FLOG2.X FPn
-1111001000000000|--CC46|          |	|FABS.X FPn
-1111001000000000|--CCSS|          |	|FCOSH.X FPn
-1111001000000000|--CC46|          |	|FNEG.X FPn
-1111001000000000|--CCSS|          |	|FACOS.X FPn
-1111001000000000|--CCSS|          |	|FCOS.X FPn
-1111001000000000|--CCSS|          |	|FGETEXP.X FPn
-1111001000000000|--CCSS|          |	|FGETMAN.X FPn
-1111001000000000|----46|          |	|FSSQRT.X FPn
-1111001000000000|----46|          |	|FDSQRT.X FPn
-1111001000000000|----46|          |	|FSABS.X FPn
-1111001000000000|----46|          |	|FSNEG.X FPn
-1111001000000000|----46|          |	|FDABS.X FPn
-1111001000000000|----46|          |	|FDNEG.X FPn
-1111001000000000|--CCSS|          |	|FMOVECR.X #ccc,FPn
-1111001000000xxx|--CC46|          |	|FTST.lwb Dx
-1111001000000xxx|--CC46|          |	|FMOVE.lswb Dx,FPn
-1111001000000xxx|--CCS6|          |	|FINT.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FSINH.lswb Dx,FPn
-1111001000000xxx|--CCS6|          |	|FINTRZ.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FSQRT.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FLOGNP1.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FETOXM1.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FTANH.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FATAN.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FASIN.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FATANH.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FSIN.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FTAN.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FETOX.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FTWOTOX.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FTENTOX.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FLOGN.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FLOG10.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FLOG2.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FABS.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FCOSH.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FNEG.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FACOS.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FCOS.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FGETEXP.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FGETMAN.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FDIV.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FMOD.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FADD.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FMUL.lswb Dx,FPn
-1111001000000xxx|--CCS6|          |	|FSGLDIV.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FREM.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FSCALE.lswb Dx,FPn
-1111001000000xxx|--CCS6|          |	|FSGLMUL.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FSUB.lswb Dx,FPn
-1111001000000xxx|--CC46|          |	|FCMP.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSMOVE.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSSQRT.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDMOVE.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDSQRT.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSABS.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSNEG.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDABS.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDNEG.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSDIV.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSADD.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSMUL.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDDIV.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDADD.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDMUL.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FSSUB.lswb Dx,FPn
-1111001000000xxx|----46|          |	|FDSUB.lswb Dx,FPn
-1111001000000xxx|--CCSS|          |	|FSINCOS.lswb Dx,FPc:FPs
-1111001000000xxx|--CC46|          |	|FMOVE.lwb FPm,Dx
-1111001000100xxx|--CC46|    -     |	|FMOVEM.X #<data>,-(Ax)
-1111001000100xxx|--CC46|    -     |	|FMOVEM.X <list>,-(Ax)
-1111001000100xxx|--CC4S|    -     |	|FMOVEM.X Dn,-(Ax)
-1111001000111100|--CC4S|         I|	|FMOVEM.L #<data>,#<data>,FPSR/FPIAR
-1111001000111100|--CC4S|         I|	|FMOVEM.L #<data>,#<data>,FPCR/FPIAR
-1111001000111100|--CC4S|         I|	|FMOVEM.L #<data>,#<data>,FPCR/FPSR
-1111001000111100|--CC4S|         I|	|FMOVEM.L #<data>,#<data>,#<data>,FPCR/FPSR/FPIAR
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FTST.lsxwdb <ea>
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FTST.P <ea>
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FMOVE.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FMOVE.P <ea>,FPn
-1111001000mmmrrr|--CCS6|  M+-WXZPI|	|FINT.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FINT.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSINH.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCS6|  M+-WXZPI|	|FINTRZ.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FINTRZ.P <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FSQRT.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSQRT.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FLOGNP1.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FETOXM1.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FTANH.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FATAN.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FASIN.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FATANH.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSIN.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FTAN.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FETOX.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FTWOTOX.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FTENTOX.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FLOGN.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FLOG10.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FLOG2.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FABS.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FABS.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FCOSH.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FNEG.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FNEG.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FACOS.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FCOS.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FGETEXP.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FGETMAN.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FDIV.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FDIV.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FMOD.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FADD.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FADD.P <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FMUL.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FMUL.P <ea>,FPn
-1111001000mmmrrr|--CCS6|  M+-WXZPI|	|FSGLDIV.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSGLDIV.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FREM.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSCALE.lsxpwdb <ea>,FPn
-1111001000mmmrrr|--CCS6|  M+-WXZPI|	|FSGLMUL.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSGLMUL.P <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FSUB.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSUB.P <ea>,FPn
-1111001000mmmrrr|--CC46|  M+-WXZPI|	|FCMP.lsxwdb <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FCMP.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSMOVE.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSMOVE.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSSQRT.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSSQRT.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDMOVE.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDMOVE.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDSQRT.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDSQRT.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSABS.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSABS.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSNEG.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSNEG.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDABS.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDABS.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDNEG.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDNEG.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSDIV.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSDIV.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSADD.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSADD.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSMUL.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSMUL.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDDIV.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDDIV.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDADD.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDADD.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDMUL.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDMUL.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FSSUB.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FSSUB.P <ea>,FPn
-1111001000mmmrrr|----46|  M+-WXZPI|	|FDSUB.lsxwdb <ea>,FPn
-1111001000mmmrrr|----SS|  M+-WXZPI|	|FDSUB.P <ea>,FPn
-1111001000mmmrrr|--CCSS|  M+-WXZPI|	|FSINCOS.lsxpwdb <ea>,FPc:FPs
-1111001000mmmrrr|--CCSS|  M+-WXZ  |	|FMOVE.P FPn,<ea>{#k}
-1111001000mmmrrr|--CCSS|  M+-WXZ  |	|FMOVE.P FPm,<ea>{Dn}
-1111001000mmmrrr|--CC46|  M+-WXZ  |	|FMOVE.lsxwdb FPm,<ea>
-1111001000mmmrrr|--CC46|DAM+-WXZPI|	|FMOVE.L <ea>,FPIAR
-1111001000mmmrrr|--CC46|DAM+-WXZPI|	|FMOVEM.L <ea>,FPIAR
-1111001000mmmrrr|--CC46|D M+-WXZPI|	|FMOVE.L <ea>,FPSR
-1111001000mmmrrr|--CC46|D M+-WXZPI|	|FMOVEM.L <ea>,FPSR
-1111001000mmmrrr|--CC46|  M+-WXZP |	|FMOVEM.L <ea>,FPSR/FPIAR
-1111001000mmmrrr|--CC46|D M+-WXZPI|	|FMOVE.L <ea>,FPCR
-1111001000mmmrrr|--CC46|D M+-WXZPI|	|FMOVEM.L <ea>,FPCR
-1111001000mmmrrr|--CC46|  M+-WXZP |	|FMOVEM.L <ea>,FPCR/FPIAR
-1111001000mmmrrr|--CC46|  M+-WXZP |	|FMOVEM.L <ea>,FPCR/FPSR
-1111001000mmmrrr|--CC46|  M+-WXZP |	|FMOVEM.L <ea>,FPCR/FPSR/FPIAR
-1111001000mmmrrr|--CC46|DAM+-WXZ  |	|FMOVE.L FPIAR,<ea>
-1111001000mmmrrr|--CC46|DAM+-WXZ  |	|FMOVEM.L FPIAR,<ea>
-1111001000mmmrrr|--CC46|D M+-WXZ  |	|FMOVE.L FPSR,<ea>
-1111001000mmmrrr|--CC46|D M+-WXZ  |	|FMOVEM.L FPSR,<ea>
-1111001000mmmrrr|--CC46|  M+-WXZ  |	|FMOVEM.L FPSR/FPIAR,<ea>
-1111001000mmmrrr|--CC46|D M+-WXZ  |	|FMOVE.L FPCR,<ea>
-1111001000mmmrrr|--CC46|D M+-WXZ  |	|FMOVEM.L FPCR,<ea>
-1111001000mmmrrr|--CC46|  M+-WXZ  |	|FMOVEM.L FPCR/FPIAR,<ea>
-1111001000mmmrrr|--CC46|  M+-WXZ  |	|FMOVEM.L FPCR/FPSR,<ea>
-1111001000mmmrrr|--CC46|  M+-WXZ  |	|FMOVEM.L FPCR/FPSR/FPIAR,<ea>
-1111001000mmmrrr|--CC46|  M+ WXZP |	|FMOVEM.X <ea>,#<data>
-1111001000mmmrrr|--CC46|  M+ WXZP |	|FMOVEM.X <ea>,<list>
-1111001000mmmrrr|--CC4S|  M+ WXZP |	|FMOVEM.X <ea>,Dn
-1111001000mmmrrr|--CC46|  M  WXZ  |	|FMOVEM.X #<data>,<ea>
-1111001000mmmrrr|--CC46|  M  WXZ  |	|FMOVEM.X <list>,<ea>
-1111001000mmmrrr|--CC4S|  M  WXZ  |	|FMOVEM.X Dn,<ea>
-1111001001001nnn|--CC4S|          |	|FDBcc Dn,<label>
-111100100111101s|--CC4S|          |	|FTRAPcc.wl #<data>
-1111001001111100|--CC4S|          |	|FTRAPcc
-1111001001mmmrrr|--CC4S|D M+-WXZ  |	|FScc.B <ea>
-1111001010000000|--CC46|          |	|FNOP
-111100101scccccc|--CC46|          |	|FBcc.wl <label>
-1111001100mmmrrr|--CC46|  M -WXZ  |	|FSAVE <ea>
-1111001101mmmrrr|--CC46|  M+ WXZP |	|FRESTORE <ea>
-11110100cc001nnn|----46|          |	|CINVL <caches>,(An)
-11110100cc010nnn|----46|          |	|CINVP <caches>,(An)
-11110100cc011000|----46|          |	|CINVA <caches>
-11110100cc101nnn|----46|          |	|CPUSHL <caches>,(An)
-11110100cc110nnn|----46|          |	|CPUSHP <caches>,(An)
-11110100cc111000|----46|          |	|CPUSHA <caches>
-1111010100000nnn|----46|          |	|PFLUSHN (An)
-1111010100001nnn|----46|          |	|PFLUSH (An)
-1111010100010000|----46|          |	|PFLUSHAN
-1111010100011000|----46|          |	|PFLUSHA
-1111010101001nnn|----4-|          |	|PTESTW (An)
-1111010101101nnn|----4-|          |	|PTESTR (An)
-1111010110001nnn|-----6|          |	|PLPAW (An)
-1111010111001nnn|-----6|          |	|PLPAR (An)
-1111011000000nnn|----46|          |	|MOVE16 (An)+,xxx.L
-1111011000001nnn|----46|          |	|MOVE16 xxx.L,(An)+
-1111011000010nnn|----46|          |	|MOVE16 (An),xxx.L
-1111011000011nnn|----46|          |	|MOVE16 xxx.L,(An)
-1111011000100xxx|----46|          |	|MOVE16 (Ax)+,(Ay)+
-1111100000000000|-----6|          |	|LPSTOP.W #<data>
-1111iii000mmmrrr|--23--|          |	|cpGEN <parameters>
-1111iii001001nnn|--23--|          |	|cpDBcc.W Dn,<label>
-1111iii00111101s|--23--|          |	|cpTRAPcc.wl #<data>
-1111iii001111100|--23--|          |	|cpTRAPcc
-1111iii001mmmrrr|--23--|D M+-WXZ  |	|cpScc.B <ea>
-1111iii01scccccc|--23--|          |	|cpBcc.wl <label>
-1111iii100mmmrrr|--23--|  M -WXZ  |	|cpSAVE <ea>
-1111iii101mmmrrr|--23--|  M+ WXZPI|	|cpRESTORE <ea>
+010011100100....|012346|          |trap			|TRAP #<vector>
+0100111001010nnn|012346|          |link			|LINK.W An,#<data>
+0100111001011nnn|012346|          |unlk			|UNLK An
+0100111001100nnn|012346|          |move_to_usp	|MOVE.L An,USP
+0100111001101nnn|012346|          |move_fr_usp	|MOVE.L USP,An
+0100111001110000|012346|          |reset		|RESET
+0100111001110001|012346|          |nop			|NOP
+0100111001110010|012346|          |stop			|STOP #<data>
+0100111001110011|012346|          |rte			|RTE
+0100111001110100|-12346|          |rtd			|RTD #<data>
+0100111001110101|012346|          |rts			|RTS
+0100111001110110|012346|          |trapv		|TRAPV
+0100111001110111|012346|          |rtr			|RTR
+0100111001111010|-12346|          |movec_from	|MOVEC.L Rc,Rn
+0100111001111011|-12346|          |movec_to		|MOVEC.L Rn,Rc
+010011100111rnnn|-2----|          |rtm			|RTM Rn
+0100111010mmmrrr|012346|  M  WXZP |jsr			|JSR <ea>
+0100111011mmmrrr|012346|  M  WXZP |jmp			|JMP <ea>
+0100nnn100mmmrrr|--2346|D M+-WXZPI|chk_l_EA		|CHK.L <ea>,Dn
+0100nnn110mmmrrr|012346|D M+-WXZPI|chk_w_EA		|CHK.W <ea>,Dn
+0100nnn111mmmrrr|012346|  M  WXZP |lea			|LEA.L <ea>,An
+0101000111001nnn|012346|          |dbra			|DBRA.W Dn,<label>
+0101....11001nnn|012346|          |dbcc			|DBcc.W Dn,<label>
+0101....1111101s|--2346|          |trapcc_S		|TRAPcc.wl #<data>
+0101....11111100|--2346|          |trapcc		|TRAPcc
+0101....11mmmrrr|012346|D M+-WXZ  |scc_EA		|Scc.B <ea>
+0101ddd0SS001xxx|012346| A        |addq_S_an	|ADDQ.wl #<data>,Ax
+0101ddd0SSmmmrrr|012346|D M+-WXZ  |addq_S_EA	|ADDQ.bwl #<data>,<ea>
+0101ddd1SS001xxx|012346| A        |subq_S_an	|SUBQ.wl #<data>,Ax
+0101ddd1SSmmmrrr|012346|D M+-WXZ  |subq_S_EA	|SUBQ.bwl #<data>,<ea>
+0110000000000000|012346|          |bra_w		|BRA.W <label>
+0110000011111111|--2346|          |bra_l		|BRA.L <label>
+01100000........|012346|          |bra_s		|BRA.S <label>
+0110000100000000|012346|          |bsr_w		|BSR.W <label>
+0110000111111111|--2346|          |bsr_l		|BSR.L <label>
+01100001........|012346|          |bsr_s		|BSR.S <label>
+0110....00000000|012346|          |bcc_w		|Bcc.W <label>
+0110....11111111|--2346|          |bcc_l		|Bcc.L <label>
+0110............|012346|          |bcc_s		|Bcc.S <label>
+0111nnn0........|012346|          |moveq		|MOVEQ.L #<data>,Dn
+1000nnn011mmmrrr|012346|D M+-WXZPI|divu_w_EA	|DIVU.W <ea>,Dn
+1000nnn0SSmmmrrr|012346|D M+-WXZPI|or_S_EA_reg	|OR.bwl <ea>,Dn
+1000nnn111mmmrrr|012346|D M+-WXZPI|divs_w_EA	|DIVS.W <ea>,Dn
+1000nnn1SSmmmrrr|012346|  M+-WXZ  |or_S_reg_mem	|OR.bwl Dn,<ea>
+1000yyy100000xxx|012346|          |sbcd_reg		|SBCD.B Dx,Dy
+1000yyy100001xxx|012346|          |sbcd_mem		|SBCD.B -(Ax),-(Ay)
+1000yyy101000xxx|--2346|          |pack_reg		|PACK Dx,Dy,#<data>
+1000yyy101001xxx|--2346|          |pack_mem		|PACK -(Ax),-(Ay),#<data>
+1000yyy110000xxx|--2346|          |unpk_reg		|UNPK Dx,Dy,#<data>
+1000yyy110001xxx|--2346|          |unpk_mem		|UNPK -(Ax),-(Ay),#<data>
+1001nnn0SS001xxx|012346| A        |sub_S_an		|SUB.wl Ax,Dn
+1001nnn0SSmmmrrr|012346|D M+-WXZPI|sub_S_EA_reg	|SUB.bwl <ea>,Dn
+1001nnn1SSmmmrrr|012346|  M+-WXZ  |sub_S_reg_mem	|SUB.bwl Dn,<ea>
+1001nnns11mmmrrr|012346|DAM+-WXZPI|suba_S_EA	|SUBA.wl <ea>,An
+1001yyy1SS000xxx|012346|          |subx_S_reg	|SUBX.bwl Dx,Dy
+1001yyy1SS001xxx|012346|          |subx_ss_mem	|SUBX.bwl -(Ax),-(Ay)
+1011nnn0SS001xxx|012346| A        |cmp_S_an		|CMP.wl Ax,Dn
+1011nnn0SSmmmrrr|012346|D M+-WXZPI|cmp_S_EA		|CMP.bwl <ea>,Dn
+1011nnn1SSmmmrrr|012346|D M+-WXZ  |eor_S_EA		|EOR.bwl Dn,<ea>
+1011nnns11mmmrrr|012346|DAM+-WXZPI|cmpa_S_EA	|CMPA.wl <ea>,An
+1011xxx1SS001yyy|012346|          |cmpm_S		|CMPM.bwl (Ay)+,(Ax)+
+1100nnn011mmmrrr|012346|D M+-WXZPI|mulu_w_EA	|MULU.W <ea>,Dn
+1100nnn0SSmmmrrr|012346|D M+-WXZPI|and_S_EA		|AND.bwl <ea>,Dn
+1100nnn111mmmrrr|012346|D M+-WXZPI|muls_w_EA	|MULS.W <ea>,Dn
+1100nnn1SSmmmrrr|012346|  M+-WXZ  |and_S_EA		|AND.bwl Dn,<ea>
+1100xxx101000yyy|012346|          |exg_l_dn_dn	|EXG.L Dx,Dy
+1100xxx101001yyy|012346|          |exg_l_an_an	|EXG.L Ax,Ay
+1100xxx110001yyy|012346|          |exg_l_an_dn	|EXG.L Ay,Dx
+1100xxx110001yyy|012346|          |exg_l_dn_an	|EXG.L Dx,Ay
+1100yyy100000xxx|012346|          |abcd_reg		|ABCD.B Dx,Dy
+1100yyy100001xxx|012346|          |abcd_mem		|ABCD.B -(Ax),-(Ay)
+1101nnn0SS001xxx|012346| A        |add_S_an		|ADD.wl Ax,Dn
+1101nnn0SSmmmrrr|012346|D M+-WXZPI|add_S_EA_reg	|ADD.bwl <ea>,Dn
+1101nnn1SSmmmrrr|012346|  M+-WXZ  |add_S_dn_mem	|ADD.bwl Dn,<ea>
+1101nnns11mmmrrr|012346|DAM+-WXZPI|adda_S_EA	|ADDA.wl <ea>,An
+1101yyy1SS000xxx|012346|          |addx_S_reg	|ADDX.bwl Dx,Dy
+1101yyy1SS001xxx|012346|          |addx_S_mem	|ADDX.bwl -(Ax),-(Ay)
+1110000011mmmrrr|012346|  M+-WXZ  |asr_w_EA		|ASR.W <ea>
+1110000111mmmrrr|012346|  M+-WXZ  |asl_w_EA		|ASL.W <ea>
+1110001011mmmrrr|012346|  M+-WXZ  |lsr_w_EA		|LSR.W <ea>
+1110001111mmmrrr|012346|  M+-WXZ  |lsl_w_EA		|LSL.W <ea>
+1110010011mmmrrr|012346|  M+-WXZ  |roxr_w_EA	|ROXR.W <ea>
+1110010111mmmrrr|012346|  M+-WXZ  |roxl_w_EA	|ROXL.W <ea>
+1110011011mmmrrr|012346|  M+-WXZ  |ror_w_EA		|ROR.W <ea>
+1110011111mmmrrr|012346|  M+-WXZ  |rol_w_EA		|ROL.W <ea>
+1110100011mmmrrr|--2346|D M  WXZP |bftst_EA		|BFTST <ea>
+1110100111mmmrrr|--2346|D M  WXZP |bfextu_EA	|BFEXTU <ea>
+1110101011mmmrrr|--2346|D M  WXZ  |bfchg_EA		|BFCHG <ea>{#o:#w}
+1110101111mmmrrr|--2346|D M  WXZP |bfexts_EA	|BFEXTS <ea>{#o:#w},Dn
+1110110011mmmrrr|--2346|D M  WXZ  |bfclr_EA		|BFCLR <ea>{#o:#w}
+1110110111mmmrrr|--2346|D M  WXZP |bfffo_EA		|BFFFO <ea>{#o:#w},Dn
+1110111011mmmrrr|--2346|D M  WXZ  |bfset_EA		|BFSET <ea>{#o:#w}
+1110111111mmmrrr|--2346|D M  WXZ  |bfins_EA		|BFINS Dn,<ea>{#o:#w}
+1110ddd0SS000nnn|012346|          |asr_S_imm	|ASR.bwl #<data>,Dn
+1110ddd0SS001nnn|012346|          |lsr_S_imm	|LSR.bwl #<data>,Dn
+1110ddd0SS010nnn|012346|          |roxr_S_imm	|ROXR.bwl #<data>,Dn
+1110ddd0SS011nnn|012346|          |ror_S_imm	|ROR.bwl #<data>,Dn
+1110ddd1SS000nnn|012346|          |asl_S_imm	|ASL.bwl #<data>,Dn
+1110ddd1SS001nnn|012346|          |lsl_S_imm	|LSL.bwl #<data>,Dn
+1110ddd1SS010nnn|012346|          |roxl_S_imm	|ROXL.bwl #<data>,Dn
+1110ddd1SS011nnn|012346|          |rol_S_imm	|ROL.bwl #<data>,Dn
+1110xxx0SS100yyy|012346|          |asr_S_dn		|ASR.bwl Dx,Dy
+1110xxx0SS101yyy|012346|          |lsr_S_dn		|LSR.bwl Dx,Dy
+1110xxx0SS110yyy|012346|          |roxr_S_dn	|ROXR.bwl Dx,Dy
+1110xxx0SS111yyy|012346|          |ror_S_dn		|ROR.bwl Dx,Dy
+1110xxx1SS100yyy|012346|          |asl_S_dn		|ASL.bwl Dx,Dy
+1110xxx1SS101yyy|012346|          |lsl_S_dn		|LSL.bwl Dx,Dy
+1110xxx1SS110yyy|012346|          |roxl_S_dn	|ROXL.bwl Dx,Dy
+1110xxx1SS111yyy|012346|          |rol_S_dn		|ROL.bwl Dx,Dy
+1111000xxxyyynnn|---3--|          |mmuop		|MMU_OP
+1111001xxxyyynnn|--CC46|          |fpuop		|FPU_OP
+11110100..001nnn|----46|          |cinvl		|CINVL <caches>,(An)
+11110100..010nnn|----46|          |cinvp		|CINVP <caches>,(An)
+11110100..011000|----46|          |cinva		|CINVA <caches>
+11110100..101nnn|----46|          |cpushl		|CPUSHL <caches>,(An)
+11110100..110nnn|----46|          |cpushp		|CPUSHP <caches>,(An)
+11110100..111000|----46|          |cpusha		|CPUSHA <caches>
+1111010100000nnn|----46|          |pflushn		|PFLUSHN (An)
+1111010100001nnn|----46|          |pflush		|PFLUSH (An)
+1111010100010000|----46|          |pflushan		|PFLUSHAN
+1111010100011000|----46|          |pflusha		|PFLUSHA
+1111010101001nnn|----4-|          |ptestw		|PTESTW (An)
+1111010101101nnn|----4-|          |ptestr		|PTESTR (An)
+1111010110001nnn|-----6|          |plpaw		|PLPAW (An)
+1111010111001nnn|-----6|          |plpar		|PLPAR (An)
+1111011000000nnn|----46|          |move16_1		|MOVE16 (An)+,xxx.L
+1111011000001nnn|----46|          |move16_2		|MOVE16 xxx.L,(An)+
+1111011000010nnn|----46|          |move16_3		|MOVE16 (An),xxx.L
+1111011000011nnn|----46|          |move16_4		|MOVE16 xxx.L,(An)
+1111011000100xxx|----46|          |move16_an_an	|MOVE16 (Ax)+,(Ay)+
+1111100000000000|-----6|          |lpstop		|LPSTOP.W #<data>
+1010............|012346|          |aline        |A-Line
+1111............|012346|          |fline        |F-Line
