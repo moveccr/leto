@@ -166,6 +166,7 @@ function expand($op)
 
 	// アドレッシングモード (MOVEのソース部分)
 	if (strpos($op["bits"], "RRRMMM") !== false) {
+		$op["addr2"] = $op["addr"];
 		expand_addr($op, "XX");
 		return;
 	}
