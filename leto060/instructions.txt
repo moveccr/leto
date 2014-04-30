@@ -9,6 +9,7 @@
 ;	s      … サイズ (w/l)
 ;	mmmrrr … EA
 ;	RRRMMM … MOVE 命令のソース用 EA
+;	cccc   … %0000,%0001 を含まないパターンに展開する (Bcc/BRA/BSR)
 ;	xxx,yyy,ddd,nnn … "..." と同じ。
 ;	          レジスタ番号など、単純に %000〜%111 に展開するもので
 ;	          ここでは記号に意味はないが、オリジナルのままにしてある。
@@ -127,9 +128,9 @@
 0110000100000000|012346|          |bsr_w		|BSR.W <label>
 0110000111111111|--2346|          |bsr_l		|BSR.L <label>
 01100001........|012346|          |bsr_b		|BSR.S <label>
-0110....00000000|012346|          |bcc_w		|Bcc.W <label>
-0110....11111111|--2346|          |bcc_l		|Bcc.L <label>
-0110............|012346|          |bcc_b		|Bcc.S <label>
+0110cccc00000000|012346|          |bcc_w		|Bcc.W <label>
+0110cccc11111111|--2346|          |bcc_l		|Bcc.L <label>
+0110cccc........|012346|          |bcc_b		|Bcc.S <label>
 0111nnn0........|012346|          |moveq		|MOVEQ.L #<data>,Dn
 1000nnn011mmmrrr|012346|D M+-WXZPI|divu_w_EA	|DIVU.W <ea>,Dn
 1000nnn0SSmmmrrr|012346|D M+-WXZPI|or_S_EA_reg	|OR.bwl <ea>,Dn

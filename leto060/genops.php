@@ -184,6 +184,12 @@ function expand($op)
 		return;
 	}
 
+	// Bcc の cccc は %0000,%0001 を含まない
+	if (strpos($op["bits"], "cccc") !== false) {
+		expand_cccc($op);
+		return;
+	}
+
 	// "." は無条件で "0"/"1" に置換できるビット
 	if (strpos($op["bits"], ".") !== false) {
 		expand_bit($op, "\\.", array("0", "1"));
@@ -332,6 +338,22 @@ function expand_addr($op, $dst)
 	}
 }
 
+// $op["bits"] のうち "cccc" を Bcc の条件コードに展開する。
+// Bcc には %0000, %0001 の2つは存在せず、ここは別の命令 BRA/BSR に
+// 割り当てられているため。
+function expand_cccc($op)
+{
+	$cccc = array(
+		              "0010","0011","0100","0101","0110","0111",
+		"1000","1001","1010","1011","1100","1101","1110","1111",
+	);
+
+	foreach ($cccc as $c) {
+		$op2 = $op;
+		$op2["bits"] = preg_replace("/cccc/", $c, $op2["bits"]);
+		expand($op2);
+	}
+}
 
 //
 // ops.txt の処理
