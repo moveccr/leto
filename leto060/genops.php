@@ -383,6 +383,7 @@ function output_jumptable()
 			$out .= sprintf(" // \$%04x\n", $i0);
 		}
 	}
+	$out .= "};\n";
 
 	print $out;
 }
