@@ -131,13 +131,13 @@
 0101ddd1SSmmmrrr|012346|D M+-WXZ  |subq_S_EA	|SUBQ.bwl #<data>,<ea>
 0110000000000000|012346|          |bra_w		|BRA.W <label>
 0110000011111111|--2346|          |bra_l		|BRA.L <label>
-01100000........|012346|          |bra_s		|BRA.S <label>
+01100000........|012346|          |bra_b		|BRA.S <label>
 0110000100000000|012346|          |bsr_w		|BSR.W <label>
 0110000111111111|--2346|          |bsr_l		|BSR.L <label>
-01100001........|012346|          |bsr_s		|BSR.S <label>
+01100001........|012346|          |bsr_b		|BSR.S <label>
 0110....00000000|012346|          |bcc_w		|Bcc.W <label>
 0110....11111111|--2346|          |bcc_l		|Bcc.L <label>
-0110............|012346|          |bcc_s		|Bcc.S <label>
+0110............|012346|          |bcc_b		|Bcc.S <label>
 0111nnn0........|012346|          |moveq		|MOVEQ.L #<data>,Dn
 1000nnn011mmmrrr|012346|D M+-WXZPI|divu_w_EA	|DIVU.W <ea>,Dn
 1000nnn0SSmmmrrr|012346|D M+-WXZPI|or_S_EA_reg	|OR.bwl <ea>,Dn
