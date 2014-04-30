@@ -2,6 +2,10 @@
 ; 鎌田さんところの全命令表から geninst.php を使ってから加工したもの。
 ; http://www.retropc.net/x68000/software/develop/as/has060/m68k.htm
 ;
+; ビットパターンはこの定義順に展開するので、前の行を後の行で上書きする。
+; そのためより限定的なほうを後ろ(下)に記述すること。
+; それ以外は概ねソートすること。
+;
 ; ビットパターン
 ;	0, 1   … 0 または 1 固定のビット
 ;	.      … 0 および 1 の両方に展開される
@@ -20,6 +24,10 @@
 ;		S  .. "SS"/"s" のサイズに応じて b/w/l に展開
 ;		EA .. アドレッシングモード mmmrrr に応じて reg/mem に展開
 ;		XX .. アドレッシングモード RRRMMM に応じて reg/mem に展開
+;
+; TODO
+; - DBRA は DBcc の別名なだけなのでここで分ける必要はないが
+;   もし DBRA に特化した処理を書くならこのまま分けるのもありか。
 ;
 ;ビットパターン |MPU   |ADDRESSING|関数名		|表示名
 ;---------------+------+----------+-------------+------------------
@@ -62,10 +70,10 @@
 0000nnn110000xxx|012346|          |bclr_reg_reg	|BCLR.L Dn,Dx
 0000nnn110mmmrrr|012346|  M+-WXZ  |bclr_reg_mem	|BCLR.B Dn,<ea>
 0001RRRMMMmmmrrr|012346|D M+-WXZPI|move_b_EA_XX	|MOVE.B <ea>,<x>
-0010nnn001mmmrrr|012346|DAM+-WXZPI|movea_l_EA	|MOVEA.L <ea>,An
 0010RRRMMMmmmrrr|012346|DAM+-WXZPI|move_l_EA_XX	|MOVE.L <ea>,<x>
-0011nnn001mmmrrr|012346|DAM+-WXZPI|movea_w_EA	|MOVEA.W <ea>,An
+0010nnn001mmmrrr|012346|DAM+-WXZPI|movea_l_EA	|MOVEA.L <ea>,An
 0011RRRMMMmmmrrr|012346|DAM+-WXZPI|move_w_EA_XX	|MOVE.W <ea>,<x>
+0011nnn001mmmrrr|012346|DAM+-WXZPI|movea_w_EA	|MOVEA.W <ea>,An
 0100000011mmmrrr|0-----|D M+-WXZ  |move_sr_EA	|MOVE.W SR,<ea>
 0100000011mmmrrr|-12346|D M+-WXZ  |move_sr_EA	|MOVE.W SR,<ea>
 01000000SSmmmrrr|012346|D M+-WXZ  |negx_S_EA	|NEGX.bwl <ea>
@@ -113,8 +121,8 @@
 0100nnn100mmmrrr|--2346|D M+-WXZPI|chk_l_EA		|CHK.L <ea>,Dn
 0100nnn110mmmrrr|012346|D M+-WXZPI|chk_w_EA		|CHK.W <ea>,Dn
 0100nnn111mmmrrr|012346|  M  WXZP |lea			|LEA.L <ea>,An
-0101000111001nnn|012346|          |dbra			|DBRA.W Dn,<label>
 0101....11001nnn|012346|          |dbcc			|DBcc.W Dn,<label>
+0101000111001nnn|012346|          |dbra			|DBRA.W Dn,<label>
 0101....1111101s|--2346|          |trapcc_S		|TRAPcc.wl #<data>
 0101....11111100|--2346|          |trapcc		|TRAPcc
 0101....11mmmrrr|012346|D M+-WXZ  |scc_EA		|Scc.B <ea>
@@ -122,15 +130,15 @@
 0101ddd0SSmmmrrr|012346|D M+-WXZ  |addq_S_EA	|ADDQ.bwl #<data>,<ea>
 0101ddd1SS001xxx|012346| A        |subq_S_an	|SUBQ.wl #<data>,Ax
 0101ddd1SSmmmrrr|012346|D M+-WXZ  |subq_S_EA	|SUBQ.bwl #<data>,<ea>
+01100000........|012346|          |bra_b		|BRA.S <label>
 0110000000000000|012346|          |bra_w		|BRA.W <label>
 0110000011111111|--2346|          |bra_l		|BRA.L <label>
-01100000........|012346|          |bra_b		|BRA.S <label>
+01100001........|012346|          |bsr_b		|BSR.S <label>
 0110000100000000|012346|          |bsr_w		|BSR.W <label>
 0110000111111111|--2346|          |bsr_l		|BSR.L <label>
-01100001........|012346|          |bsr_b		|BSR.S <label>
+0110cccc........|012346|          |bcc_b		|Bcc.S <label>
 0110cccc00000000|012346|          |bcc_w		|Bcc.W <label>
 0110cccc11111111|--2346|          |bcc_l		|Bcc.L <label>
-0110cccc........|012346|          |bcc_b		|Bcc.S <label>
 0111nnn0........|012346|          |moveq		|MOVEQ.L #<data>,Dn
 1000nnn011mmmrrr|012346|D M+-WXZPI|divu_w_EA	|DIVU.W <ea>,Dn
 1000nnn0SSmmmrrr|012346|D M+-WXZPI|or_S_EA_reg	|OR.bwl <ea>,Dn
@@ -148,6 +156,7 @@
 1001nnns11mmmrrr|012346|DAM+-WXZPI|suba_S_EA	|SUBA.wl <ea>,An
 1001yyy1SS000xxx|012346|          |subx_S_reg	|SUBX.bwl Dx,Dy
 1001yyy1SS001xxx|012346|          |subx_ss_mem	|SUBX.bwl -(Ax),-(Ay)
+1010............|012346|          |aline        |A-Line
 1011nnn0SS001xxx|012346| A        |cmp_S_an		|CMP.wl Ax,Dn
 1011nnn0SSmmmrrr|012346|D M+-WXZPI|cmp_S_EA		|CMP.bwl <ea>,Dn
 1011nnn1SSmmmrrr|012346|D M+-WXZ  |eor_S_EA		|EOR.bwl Dn,<ea>
@@ -200,6 +209,7 @@
 1110xxx1SS101yyy|012346|          |lsl_S_dn		|LSL.bwl Dx,Dy
 1110xxx1SS110yyy|012346|          |roxl_S_dn	|ROXL.bwl Dx,Dy
 1110xxx1SS111yyy|012346|          |rol_S_dn		|ROL.bwl Dx,Dy
+1111............|012346|          |fline        |F-Line
 1111000xxxyyynnn|---3--|          |mmuop		|MMU_OP
 1111001xxxyyynnn|--CC46|          |fpuop		|FPU_OP
 11110100..001nnn|----46|          |cinvl		|CINVL <caches>,(An)
@@ -222,5 +232,3 @@
 1111011000011nnn|----46|          |move16_4		|MOVE16 xxx.L,(An)
 1111011000100xxx|----46|          |move16_an_an	|MOVE16 (Ax)+,(Ay)+
 1111100000000000|-----6|          |lpstop		|LPSTOP.W #<data>
-1010............|012346|          |aline        |A-Line
-1111............|012346|          |fline        |F-Line

@@ -101,31 +101,11 @@ function parse_instructions($fp)
 		exit(1);
 	}
 
-	// 命令フォーマット1ワード目の16ビットのうち固定ビット('0'か'1')数に
-	// 応じてプール分けする。
-	// NOP などのように16ビットすべて固定なら $pool[16]。
-	$pool = array();
-	for ($i = 0; $i < 17; $i++) {
-		$pool[$i] = array();
-	}
+	// 記載順に展開 (後に現れたほうで上書きしていく)
 	foreach ($ops060 as $op) {
-		// 文字列に含まれる各文字の出現回数を調べる
-		$ch = count_chars($op["bits"], 0);
-		// '0' と '1' の数
-		$n0 = $ch[0x30] + 0;
-		$n1 = $ch[0x31] + 0;
-
-		$pool[$n0 + $n1][] = $op;
-	}
-
-	// 固定ビットの少ないほう(可変ビットの多いほう)から書き出す。
-	$table = array();
-	for ($i = 0; $i < count($pool); $i++) {
-		foreach ($pool[$i] as $op) {
-			$original_op = $op;		// デバッグ表示用に展開元を保存しとく
-			$depth = 0;
-			expand($op);
-		}
+		$original_op = $op;		// デバッグ表示用に展開元を保存しとく
+		$depth = 0;
+		expand($op);
 	}
 	ksort($table);
 }
