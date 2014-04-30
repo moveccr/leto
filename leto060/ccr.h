@@ -16,6 +16,13 @@
 // ループの最後に eval() を入れておくこと。
 #define eval()	__asm__("nop")
 
+// とりあえず
+#define CCR_X 0x0010
+#define CCR_N 0x0008
+#define CCR_Z 0x0004
+#define CCR_V 0x0002
+#define CCR_C 0x0001
+
 class CCR1
 {
 	// これが MPU だと思いねえ。
