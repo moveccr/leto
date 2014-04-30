@@ -47,8 +47,7 @@
 00001010SSmmmrrr|012346|D M+-WXZ  |eori_S_EA	|EORI.bwl #<data>,<ea>
 00001100SSmmmrrr|--2346|        P |cmpi_S_EA	|CMPI.bwl #<data>,<ea>
 00001100SSmmmrrr|012346|D M+-WXZ  |cmpi_S_EA	|CMPI.bwl #<data>,<ea>
-00001110SSmmmrrr|-12346|  M+-WXZ  |moves_S_EA_reg	|MOVES.bwl <ea>,Rn
-00001110SSmmmrrr|-12346|  M+-WXZ  |moves_S_reg_EA	|MOVES.bwl Rn,<ea>
+00001110SSmmmrrr|-12346|  M+-WXZ  |moves_S		|MOVES.bwl <ea>,Rn
 000011s011111100|--234S|          |cas2_S	|CAS2.wl Dc1:Dc2,Du1:Du2,(Rn1):(Rn2)
 000011s011mmmrrr|--2346|  M+-WXZ  |cas_S_EA		|CAS.wl Dc,Du,<ea>
 0000nnn100000xxx|012346|          |btst_reg_reg	|BTST.L Dn,Dx
@@ -88,16 +87,9 @@
 01001010SS001xxx|--2346| A        |tst_S_reg	|TST.wl Ax
 01001010SSmmmrrr|--2346|        PI|tst_S_mem	|TST.bwl <ea>
 01001010SSmmmrrr|012346|D M+-WXZ  |tst_S_EA		|TST.bwl <ea>
-0100110000mmmrrr|--2346|D M+-WXZPI|mulu_EA		|MULU.L <ea>,Dl
-0100110000mmmrrr|--234S|D M+-WXZPI|mulu_EA_2	|MULU.L <ea>,Dh:Dl
-0100110000mmmrrr|--2346|D M+-WXZPI|muls_EA		|MULS.L <ea>,Dl
-0100110000mmmrrr|--234S|D M+-WXZPI|muls_EA_2	|MULS.L <ea>,Dh:Dl
-0100110001mmmrrr|--2346|D M+-WXZPI|divu_EA		|DIVU.L <ea>,Dq
-0100110001mmmrrr|--2346|D M+-WXZPI|divul_EA		|DIVUL.L <ea>,Dr:Dq
-0100110001mmmrrr|--234S|D M+-WXZPI|divu_EA_2	|DIVU.L <ea>,Dr:Dq
-0100110001mmmrrr|--2346|D M+-WXZPI|divs_EA		|DIVS.L <ea>,Dq
-0100110001mmmrrr|--2346|D M+-WXZPI|divsl_EA		|DIVSL.L <ea>,Dr:Dq
-0100110001mmmrrr|--234S|D M+-WXZPI|divs_EA_2	|DIVS.L <ea>,Dr:Dq
+0100110000mmmrrr|--2346|D M+-WXZPI|mul_EA		|MUL{U,S}.L <ea>,Dl
+0100110000mmmrrr|--234S|D M+-WXZPI|mul_EA_2		|MUL{U,S}.L <ea>,Dh:Dl
+0100110001mmmrrr|--2346|D M+-WXZPI|div_EA		|DIV{U,UL,S,SL}.L <ea>,Dq
 010011001smmmrrr|012346|  M+ WXZP |movem_S_EA	|MOVEM.wl <ea>,<list>
 010011100100....|012346|          |trap			|TRAP #<vector>
 0100111001010nnn|012346|          |link			|LINK.W An,#<data>
@@ -166,7 +158,6 @@
 1100nnn1SSmmmrrr|012346|  M+-WXZ  |and_S_EA		|AND.bwl Dn,<ea>
 1100xxx101000yyy|012346|          |exg_l_dn_dn	|EXG.L Dx,Dy
 1100xxx101001yyy|012346|          |exg_l_an_an	|EXG.L Ax,Ay
-1100xxx110001yyy|012346|          |exg_l_an_dn	|EXG.L Ay,Dx
 1100xxx110001yyy|012346|          |exg_l_dn_an	|EXG.L Dx,Ay
 1100yyy100000xxx|012346|          |abcd_reg		|ABCD.B Dx,Dy
 1100yyy100001xxx|012346|          |abcd_mem		|ABCD.B -(Ax),-(Ay)

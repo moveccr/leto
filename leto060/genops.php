@@ -87,6 +87,7 @@ function parse_instructions($fp)
 
 		// 060 命令のみ対象にする
 		if (preg_match("/6/", $mpu)) {
+			check_duplicate("060", $op);
 			$ops060[] = $op;
 		}
 	}
@@ -127,6 +128,24 @@ function parse_instructions($fp)
 		}
 	}
 	ksort($table);
+}
+
+// 重複チェック
+// $op のビットパターン定義が既存のいずれとも衝突していないことを確認する。
+// 重複していればエラーを表示して終了する。
+// ビットパターンはアドレッシングモードまで含めて一致すれば重複とする。
+// $dupchk[$id] に $key => display_name のハッシュをセットしていく。
+function check_duplicate($id, $op)
+{
+	global $dupchk;
+
+	$key = "{$op["bits"]}:{$op["addr"]}";
+	if (isset($dupchk[$id][$key])) {
+		print "{$op["bits"]}({$op["display_name"]}): duplicate with "
+			. "{$dupchk[$id][$key]}\n";
+		exit(1);
+	}
+	$dupchk[$id][$key] = $op["display_name"];
 }
 
 // $op["bits"] のうち可変ビットを再帰的に展開。
