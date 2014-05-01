@@ -127,8 +127,12 @@
 0101....11111100|--2346|          |trapcc		|TRAPcc
 0101....11mmmrrr|012346|D M+-WXZ  |scc_EA		|Scc.B <ea>
 0101ddd0SS001xxx|012346| A        |addq_S_an	|ADDQ.wl #<data>,Ax
+0101ddd000001xxx|012346| A        |invalid		|ADDQ.bは存在しない
+0101ddd001001xxx|012346| A        |addq_l_an	|ADDQ.W to An は ADDQ.L と等価
 0101ddd0SSmmmrrr|012346|D M+-WXZ  |addq_S_EA	|ADDQ.bwl #<data>,<ea>
 0101ddd1SS001xxx|012346| A        |subq_S_an	|SUBQ.wl #<data>,Ax
+0101ddd100001xxx|012346| A        |invalid		|SUBQ.bは存在しない
+0101ddd101001xxx|012346| A        |subq_l_an	|SUBQ.W to Ax は SUBQ.L と等価
 0101ddd1SSmmmrrr|012346|D M+-WXZ  |subq_S_EA	|SUBQ.bwl #<data>,<ea>
 01100000........|012346|          |bra_b		|BRA.S <label>
 0110000000000000|012346|          |bra_w		|BRA.W <label>
