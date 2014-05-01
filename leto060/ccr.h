@@ -6,17 +6,12 @@
 // 1. mame みたいに独立したバイト変数として実装。
 // 2. XEiJ みたいに複合したバイト変数として実装。
 // 3. ビットフィールドを使う。
+// 5. アセンブラでの演算結果のフラグを使用する。
 
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include "stopwatch.h"
 
-// 最適化によってループが取り除かれてしまうのを防ぐため、
-// ループの最後に eval() を入れておくこと。
-#define eval()	__asm__("nop")
-
-// とりあえず
 #define CCR_X 0x0010
 #define CCR_N 0x0008
 #define CCR_Z 0x0004
@@ -33,9 +28,10 @@ class CCR1
 	{
 	}
 
-	void print();
+	uint8_t get();
 
-	uint32_t FlagNZ;
+	uint32_t FlagNZ;	// 値が == 0 なら Z=1
+	// 以下いずれも 0x80 のビットで判定する
 	uint8_t FlagC;
 	uint8_t FlagV;
 	uint8_t FlagS;	// N フラグ。Z を NZ としているので S に変えとく。
@@ -52,7 +48,8 @@ class CCR2
 	{
 	}
 
-	void print();
+	uint8_t get() { return CCR; }
+
 	uint8_t CCR;	// XNZVC
 };
 
@@ -65,7 +62,6 @@ class CCR3
 	{
 	}
 
-	void print();
 	bool FlagZ: 1;
 	bool FlagC: 1;
 	bool FlagV: 1;
@@ -82,11 +78,11 @@ class CCR5
 
  public:
 	CCR5()
-		: FlagNZVC(0), FlagX(0)
+		: FlagNZVC(0), X(0)
 	{
 	}
 
-	void print();
+	uint8_t get();
 
 	// LAHF 命令でフラグは AH (AX の上位バイト) にロードされる。
 	bool FlagN() { return (FlagNZVC & (FLAG_SF << 8)); }
@@ -97,7 +93,10 @@ class CCR5
 	//  SETO 命令を使って AX のビット 0 を立てている。
 	bool FlagV() { return (FlagNZVC & 0x0001); }
 
+	// XフラグのビットはCフラグのそれと同じ位置にしておく
+	bool FlagX() { return (X & (FLAG_CF << 8)); }
+
 	uint16_t FlagNZVC;	// N,Z,V,C
-	uint16_t FlagX;		// X
+	uint16_t X;
 };
 

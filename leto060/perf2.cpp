@@ -1,79 +1,177 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include "stopwatch.h"
 #include "ccr.h"
 
-int
-main()
+#define countof(x)	(sizeof(x) / sizeof(x[0]))
+
+// CCR1
+inline uint8_t
+add1(CCR1& ccr, uint8_t d, uint8_t s)
 {
-	Stopwatch sw;
+	uint32_t r;
+	r = (uint32_t)d + s;
+	ccr.FlagNZ = r & 0xff;
+	ccr.FlagS = r;
+	ccr.FlagV = (s ^ r) & (d ^ r);
+	ccr.FlagC = r >> 1;
+	ccr.FlagX = ccr.FlagC;
 
-	volatile int N = 1000000000;
+	return r;
+}
 
-	sw.Start();
-	for (int i = 0; i < N; i++) { }
-	sw.Stop();
-	printf("LOOP = %d\n", sw.msec());
+// CCR2
+inline uint8_t
+add2(CCR2& ccr, uint8_t d, uint8_t s)
+{
+/* ADD.B Dq,<ea>
+ 30908:    wb (a, z = (byte) ((x = rbs (a)) + (y = (byte) r[op >> 9 & 7])));
+ 30909:    ccr = ((z > 0 ? 0 : z < 0 ? CCR_N : CCR_Z) |
+ 30910:           ((x ^ z) & (y ^ z)) >>> 31 << 1 |
+ 30911:           ((x | y) ^ (x ^ y) & z) >> 31 & (CCR_X | CCR_C));  //ccr_add
+*/
+	// Java の byte は符号付き
+	// >>> は算術シフト。とかそういう辺を気をつけて移植しないといけない
 
-#if 1
-	sw.Reset();
+	typedef int8_t byte;
+	byte x;
+	byte y;
+	byte z;
+
+	z = (byte)((x = (byte)d) + (y = (byte)s));
+	ccr.CCR = ((z > 0 ? 0 : z < 0 ? CCR_N : CCR_Z) |
+		((uint32_t)((x ^ z) & (y ^ z)) >> 31) << 1 |
+		((x | y) ^ (x ^ y) & z) >> 31 & (CCR_X | CCR_C));  //ccr_add
+
+	return z;
+}
+
+// CCR5
+inline uint8_t
+add5(CCR5& ccr, uint8_t d, uint8_t s)
+{
+	__asm__(
+		"addb %3,%0\n\t"
+		"lahf\n\t"
+		"seto %%al\n\t"
+		"mov %%ax,%1\n\t"
+		"mov %%ax,%2\n\t"
+		: "+r"(d), "=g"(ccr.FlagNZVC), "=g"(ccr.X)
+		: "r"(s)
+		: "%eax"
+	);
+	return d;
+}
+
+// 動作確認
+int
+regress()
+{
+	struct {
+		uint8_t dst, src, exp_val, exp_ccr;
+	} list[] = {
+		{ 0x00, 0x00, 0x00, CCR_Z, },
+		{ 0x00, 0x80, 0x80, CCR_N, },
+		{ 0x7f, 0x01, 0x80, CCR_N | CCR_V },
+		{ 0x80, 0x80, 0x00, CCR_X | CCR_Z | CCR_V | CCR_C, },
+	};
+	uint8_t r;
+	int failed = 0;
+
 	{
 		CCR1 ccr;
-		sw.Start();
-		for (int i = 0; i < N; i++) {
-			eval();
+		for (int i = 0; i < countof(list); i++) {
+			r = add1(ccr, list[i].dst, list[i].src);
+
+			if (r != list[i].exp_val) {
+				printf("CCR1 test%d: expected result=$%x but $%x\n",
+					i, list[i].exp_val, r);
+				failed++;
+			}
+			if (ccr.get() != list[i].exp_ccr) {
+				printf("CCR1 test%d: expected CCR=$%x but $%x\n",
+					i, list[i].exp_ccr, ccr.get());
+				failed++;
+			}
 		}
-		sw.Stop();
+		if (failed > 0) {
+			exit(1);
+		}
+		printf("CCR1 test ok\n");
 	}
-	printf("EVAL LOOP = %d\n", sw.msec());
-#endif
-	sw.Reset();
+
+	{
+		CCR2 ccr;
+		for (int i = 0; i < countof(list); i++) {
+			r = add2(ccr, list[i].dst, list[i].src);
+
+			if (r != list[i].exp_val) {
+				printf("CCR2 test%d: expected result=$%x but $%x\n",
+					i, list[i].exp_val, r);
+				failed++;
+			}
+			if (ccr.get() != list[i].exp_ccr) {
+				printf("CCR2 test%d: expected CCR=$%x but $%x\n",
+					i, list[i].exp_ccr, ccr.get());
+				failed++;
+			}
+		}
+		if (failed > 0) {
+			exit(1);
+		}
+		printf("CCR2 test ok\n");
+	}
 
 	{
 		CCR5 ccr;
-		sw.Start();
-		for (int i = 0; i < N; i++) {
-			// add.b エミュ
-			uint8_t d = (uint8_t)i;
-			uint8_t s = (uint8_t)10;
-			__asm__(
-				"add %3,%0\n\t"
-				"lahf\n\t"
-				"seto %%al\n\t"
-				"mov %%ax,%1\n\t"
-				"mov %%ax,%2\n\t"
-				: "+r"(d), "=g"(ccr.FlagNZVC), "=g"(ccr.FlagX)
-				: "r"(s)
-				: "%eax"
-			);
-		}
-		sw.Stop();
-		ccr.print();
-	}
-	printf("CCR5 = %d\n", sw.msec());
+		for (int i = 0; i < countof(list); i++) {
+			r = add5(ccr, list[i].dst, list[i].src);
 
+			if (r != list[i].exp_val) {
+				printf("CCR5 test%d: expected result=$%x but $%x\n",
+					i, list[i].exp_val, r);
+				failed++;
+			}
+			if (ccr.get() != list[i].exp_ccr) {
+				printf("CCR5 test%d: expected CCR=$%x but $%x\n",
+					i, list[i].exp_ccr, ccr.get());
+				failed++;
+			}
+		}
+		if (failed > 0) {
+			exit(1);
+		}
+		printf("CCR5 test ok\n");
+	}
+}
+
+// パフォーマンス測定
+int
+perf()
+{
+	Stopwatch sw;
+	volatile int N = 1000000000;
+	volatile uint8_t r;
+
+	// 空ループにかかる時間を測定。
+	// 最適化によってループが取り除かれてしまうのを防ぐため nop を実行。
+	sw.Start();
+	for (int i = 0; i < N; i++) {
+		__asm__("nop");
+	}
+	sw.Stop();
+	printf("nop only = %d\n", sw.msec());
 
 	sw.Reset();
-
 	{
 		CCR1 ccr;
 		sw.Start();
 		for (int i = 0; i < N; i++) {
-			// add.b エミュ
-			uint8_t d = (uint8_t)i;
-			uint8_t s = (uint8_t)10;
-			uint32_t r;
-			r = (uint32_t)d + s;
-			ccr.FlagNZ = r;
-			ccr.FlagS = r >> 7;
-			ccr.FlagV = (s ^ r) & (d ^ r);
-			ccr.FlagC = r >> 1;
-			ccr.FlagX = ccr.FlagC;
-			eval();
+			r = add1(ccr, i, 10);
 		}
 		sw.Stop();
-		ccr.print();
 	}
 	printf("CCR1 = %d\n", sw.msec());
 
@@ -82,28 +180,30 @@ main()
 		CCR2 ccr;
 		sw.Start();
 		for (int i = 0; i < N; i++) {
-			// add.b エミュ
-/* ADD.B Dq,<ea>
-              wb (a, z = (byte) ((x = rbs (a)) + (y = (byte) r[op >> 9 & 7])));
- 30909:       ccr = ((z > 0 ? 0 : z < 0 ? CCR_N : CCR_Z) |
- 30910:              ((x ^ z) & (y ^ z)) >>> 31 << 1 |
- 30911:              ((x | y) ^ (x ^ y) & z) >> 31 & (CCR_X | CCR_C));  //ccr_add
- */
-			uint32_t x;
-			uint32_t y;
-			int8_t z = (uint8_t)((x = i) + (y = 10));
-
-			ccr.CCR = ((z > 0 ? 0 : z < 0 ? CCR_N : CCR_Z) |
-				((uint8_t)((int8_t)((x ^ z) & (y ^ z))) >> 31) << 1 |
-				((x | y) ^ (x ^ y) & z) >> 31 & (CCR_X | CCR_C));  //ccr_add
-
-			eval();
+			r = add2(ccr, i, 10);
 		}
 		sw.Stop();
-		ccr.print();
 	}
 	printf("CCR2 = %d\n", sw.msec());
+
+	sw.Reset();
+	{
+		CCR5 ccr;
+		sw.Start();
+		for (int i = 0; i < N; i++) {
+			r = add5(ccr, i, 10);
+		}
+		sw.Stop();
+	}
+	printf("CCR5 = %d\n", sw.msec());
 
 	return 0;
 }
 
+int
+main()
+{
+	regress();
+	perf();
+	return 0;
+}
