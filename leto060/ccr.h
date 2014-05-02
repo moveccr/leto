@@ -18,6 +18,7 @@
 #define CCR_Z 0x0004
 #define CCR_V 0x0002
 #define CCR_C 0x0001
+#define CCR_MASK	(CCR_X | CCR_N | CCR_Z | CCR_V | CCR_C)
 
 // CCR クラスが持っているインタフェース。
 // ただし、呼び出しコストを小さくするために、一般的な C++ で
@@ -291,13 +292,13 @@ class CCR2
 	// 下位 5 ビットにのみ有効な値を入れて返すこと。
 	uint8_t get() const
 	{
-		return ccr;
+		return (ccr & CCR_MASK);
 	}
 
 	// CCR の全ビットを一度に設定する。
 	void set(uint8_t value)
 	{
-		ccr = value;
+		ccr = (value & CCR_MASK);
 	}
 
 	// 各、フラグ 1 bit 分を返す。
