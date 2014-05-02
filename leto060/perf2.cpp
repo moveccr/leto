@@ -173,7 +173,7 @@ perf()
 		sw.Start();
 		__asm__("// CCR1 performance START");
 		for (int i = 0; i < N; i++) {
-			r = add1(ccr, i, 10);
+			r = add1(ccr, r, i);
 			__asm__("" : : "m"(ccr));
 		}
 		__asm__("// CCR1 performance END");
@@ -187,7 +187,7 @@ perf()
 		sw.Start();
 		__asm__("// CCR2 performance START");
 		for (int i = 0; i < N; i++) {
-			r = add2(ccr, i, 10);
+			r = add2(ccr, r, i);
 			__asm__("" : : "m"(ccr));
 		}
 		__asm__("// CCR2 performance END");
@@ -201,7 +201,7 @@ perf()
 		sw.Start();
 		__asm__("// CCR5 performance START");
 		for (int i = 0; i < N; i++) {
-			r = add5(ccr, i, 10);
+			r = add5(ccr, r, i);
 			__asm__("" : : "m"(ccr));
 		}
 		__asm__("// CCR5 performance END");
