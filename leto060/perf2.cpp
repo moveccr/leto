@@ -33,7 +33,8 @@ add2(CCR2& ccr, uint8_t d, uint8_t s)
  30911:           ((x | y) ^ (x ^ y) & z) >> 31 & (CCR_X | CCR_C));  //ccr_add
 */
 	// Java の byte は符号付き
-	// >>> は算術シフト。とかそういう辺を気をつけて移植しないといけない
+	// >> は算術シフト。
+	// >>> は論理シフト。とかそういう辺を気をつけて移植しないといけない
 
 	typedef int8_t byte;
 	byte x;
