@@ -10,5 +10,8 @@ perf1:	perf1.o busif.o
 perf2:	perf2.o
 	${CXX} ${LDFLAGS} -o $@ $>
 
+perf3:	perf3.o
+	${CXX} ${LDFLAGS} -o $@ $>
+
 clean:
-	rm -rf *.o a.out perf1 perf2
+	rm -rf *.o a.out perf1 perf2 perf3
