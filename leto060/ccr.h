@@ -382,28 +382,61 @@ class CCR2
 	// Sub 系。
 	void setSUBB(uint8_t src, uint8_t dst, uint32_t res)
 	{
+		int8_t r = res;
+		uint8_t ur = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			((((src ^ dst) & (ur ^ dst)) >> 7) << 1) |
+			((((int8_t)(res >> 1)) >> 7) & (CCR_C | CCR_X));
 	}
 
 	void setSUBW(uint16_t src, uint16_t dst, uint32_t res)
 	{
+		int16_t r = res;
+		uint16_t ur = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			((((src ^ dst) & (ur ^ dst)) >> 15) << 1) |
+			((((int8_t)(res >> 9)) >> 7) & (CCR_C | CCR_X));
 	}
 
 	void setSUBL(uint32_t src, uint32_t dst, uint64_t res)
 	{
+		int32_t r = res;
+		uint32_t ur = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			((((src ^ dst) & (ur ^ dst)) >> 31) << 1) |
+			((((int8_t)(res >> 25)) >> 7) & (CCR_C | CCR_X));
 	}
 
 	// Cmp 系。
 	// SUB と同じだが、X フラグが変化しない。
 	void setCMPB(uint8_t src, uint8_t dst, uint32_t res)
 	{
+		int8_t r = res;
+		uint8_t ur = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			((((src ^ dst) & (ur ^ dst)) >> 7) << 1) |
+			((((int8_t)(res >> 1)) >> 7) & CCR_C) |
+			(ccr & CCR_X);
 	}
 
 	void setCMPW(uint16_t src, uint16_t dst, uint32_t res)
 	{
+		int16_t r = res;
+		uint16_t ur = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			((((src ^ dst) & (ur ^ dst)) >> 15) << 1) |
+			((((int8_t)(res >> 9)) >> 7) & CCR_C) | 
+			(ccr & CCR_X);
 	}
 
 	void setCMPL(uint32_t src, uint32_t dst, uint64_t res)
 	{
+		int32_t r = res;
+		uint32_t ur = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			((((src ^ dst) & (ur ^ dst)) >> 31) << 1) |
+			((((int8_t)(res >> 25)) >> 7) & CCR_C) |
+			(ccr & CCR_X);
 	}
 
 	// シフト命令
@@ -411,19 +444,32 @@ class CCR2
 	// ROL 系。rol, ror 
 	void setROLB(uint8_t res, bool flag_c)
 	{
+		int8_t r = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			(flag_c * CCR_C) |
+			(ccr & CCR_X);
 	}
 
 	void setROLW(uint16_t res, bool flag_c)
 	{
+		int16_t r = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			(flag_c * CCR_C) |
+			(ccr & CCR_X);
 	}
 
 	void setROLL(uint32_t res, bool flag_c)
 	{
+		int32_t r = res;
+		ccr = (r > 0 ? 0 : r < 0 ? CCR_N : CCR_Z) |
+			(flag_c * CCR_C) |
+			(ccr & CCR_X);
 	}
 
 	// Btst 系。btst, bset 等。
 	void setBTST(bool bit)
 	{
+		ccr = (ccr & ~CCR_Z) | (!bit * CCR_Z);
 	}
 
  private:
