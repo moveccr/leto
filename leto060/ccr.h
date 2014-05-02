@@ -266,7 +266,7 @@ class CCR1
 	// Btst 系。btst, bset 等。
 	void setBTST(bool bit)
 	{
-		NotZ = value;
+		NotZ = bit;
 	}
 
  private:
