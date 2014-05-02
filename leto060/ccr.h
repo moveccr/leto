@@ -5,8 +5,6 @@
 
 // 1. mame みたいに独立したバイト変数として実装。
 // 2. XEiJ みたいに複合したバイト変数として実装。
-// 3. mame 方式だが変数を bool で実装。
-// 5. アセンブラでの演算結果のフラグを使用する。
 
 #include <stdint.h>
 #include <stdio.h>
@@ -475,37 +473,6 @@ class CCR2
 
  private:
 	uint8_t ccr;
-};
-
-class CCR5
-{
-	// x64 の FLAG レジスタ
-	static const int FLAG_CF = 0x0001;	// Carry
-	static const int FLAG_ZF = 0x0040;	// Zero
-	static const int FLAG_SF = 0x0080;	// Sign
-
- public:
-	CCR5()
-		: FlagNZVC(0), X(0)
-	{
-	}
-
-	uint8_t get();
-
-	// LAHF 命令でフラグは AH (AX の上位バイト) にロードされる。
-	bool FlagN() { return (FlagNZVC & (FLAG_SF << 8)); }
-	bool FlagZ() { return (FlagNZVC & (FLAG_ZF << 8)); }
-	bool FlagC() { return (FlagNZVC & (FLAG_CF << 8)); }
-
-	// Vフラグに相当する OV フラグは LAHF 命令では取り出せないので
-	//  SETO 命令を使って AX のビット 0 を立てている。
-	bool FlagV() { return (FlagNZVC & 0x0001); }
-
-	// XフラグのビットはCフラグのそれと同じ位置にしておく
-	bool FlagX() { return (X & (FLAG_CF << 8)); }
-
-	uint16_t FlagNZVC;	// N,Z,V,C
-	uint16_t X;
 };
 
 
