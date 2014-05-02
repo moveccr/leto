@@ -42,8 +42,8 @@ add2(CCR2& ccr, uint8_t d, uint8_t s)
 
 	z = (byte)((x = (byte)d) + (y = (byte)s));
 	ccr.CCR = ((z > 0 ? 0 : z < 0 ? CCR_N : CCR_Z) |
-		((uint32_t)((x ^ z) & (y ^ z)) >> 31) << 1 |
-		((x | y) ^ (x ^ y) & z) >> 31 & (CCR_X | CCR_C));  //ccr_add
+		(((uint32_t)((x ^ z) & (y ^ z)) >> 31) << 1) |
+		((((x | y) ^ (x ^ y) & z) >> 31) & (CCR_X | CCR_C)));  //ccr_add
 
 	return z;
 }
