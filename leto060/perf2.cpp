@@ -59,7 +59,7 @@ add5(CCR5& ccr, uint8_t d, uint8_t s)
 		"seto %%al\n\t"
 		"mov %%ax,%1\n\t"
 		"mov %%ax,%2\n\t"
-		: "+r"(d), "=g"(ccr.FlagNZVC), "=g"(ccr.X)
+		: "+r"(d), "=m"(ccr.FlagNZVC), "=m"(ccr.X)
 		: "r"(s)
 		: "%eax"
 	);
