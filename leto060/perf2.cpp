@@ -145,6 +145,8 @@ regress()
 		}
 		printf("CCR5 test ok\n");
 	}
+
+	return 0;
 }
 
 // パフォーマンス測定
