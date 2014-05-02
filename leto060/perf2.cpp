@@ -168,9 +168,12 @@ perf()
 	{
 		CCR1 ccr;
 		sw.Start();
+		__asm__("// CCR1 performance START");
 		for (int i = 0; i < N; i++) {
 			r = add1(ccr, i, 10);
+			__asm__("" : : "m"(ccr));
 		}
+		__asm__("// CCR1 performance END");
 		sw.Stop();
 	}
 	printf("CCR1 = %d\n", sw.msec());
@@ -179,9 +182,12 @@ perf()
 	{
 		CCR2 ccr;
 		sw.Start();
+		__asm__("// CCR2 performance START");
 		for (int i = 0; i < N; i++) {
 			r = add2(ccr, i, 10);
+			__asm__("" : : "m"(ccr));
 		}
+		__asm__("// CCR2 performance END");
 		sw.Stop();
 	}
 	printf("CCR2 = %d\n", sw.msec());
@@ -190,9 +196,12 @@ perf()
 	{
 		CCR5 ccr;
 		sw.Start();
+		__asm__("// CCR5 performance START");
 		for (int i = 0; i < N; i++) {
 			r = add5(ccr, i, 10);
+			__asm__("" : : "m"(ccr));
 		}
+		__asm__("// CCR5 performance END");
 		sw.Stop();
 	}
 	printf("CCR5 = %d\n", sw.msec());
