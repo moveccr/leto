@@ -151,7 +151,7 @@ function expand($op)
 		return;
 	}
 
-	// アドレッシングモード (MOVEのソース部分)
+	// アドレッシングモード (MOVEのデスティネーション部分)
 	if (strpos($op["bits"], "RRRMMM") !== false) {
 		$op["addr2"] = $op["addr"];
 		expand_addr($op, "XX");
@@ -276,7 +276,7 @@ __EOM__;
 // 通常のアドレッシングモードの他に、MOVE 命令のソース部のために、
 // 似て非なるものがもう1セットある。以下のように適宜読み替えること。
 //
-//	DST(通常)	MOVEのソース	内容
+//	通常		MOVEのDST		内容
 //	-----------+---------------+-------
 //	"EA"		"XX"			引数 $dst
 //	$op["EA"]	$op["XX"]		mode の代入先

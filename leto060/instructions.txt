@@ -12,7 +12,7 @@
 ;   SS     … サイズ (b/w/l)
 ;	s      … サイズ (w/l)
 ;	mmmrrr … EA
-;	RRRMMM … MOVE 命令のソース用 EA
+;	RRRMMM … MOVE 命令のデスティネーション用 EA
 ;	cccc   … %0000,%0001 を含まないパターンに展開する (Bcc/BRA/BSR)
 ;	xxx,yyy,ddd,nnn … "..." と同じ。
 ;	          レジスタ番号など、単純に %000〜%111 に展開するもので
