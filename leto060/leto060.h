@@ -166,6 +166,8 @@ public:
 
 	// D0-D7 A0-A7
 	uint32_t R[16];
+#define D(x)	R[x]
+#define A(x)	R[(x) + 8]
 
 	// スタックポインタのスタンバイ側
 	// USP/SSP のうち現在アクティブなものは常に R[15] で参照できる。

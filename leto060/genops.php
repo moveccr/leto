@@ -390,6 +390,26 @@ function output_jumptable()
 	global $ops;
 
 	$out = "";
+	$out .= "#include \"macro.h\"\n";
+	$out .= "\n";
+	foreach ($ops as $key => $op) {
+		$decl = "";
+		$text = $op["text"];
+
+		// rrr は IR の下位 3ビット
+		if (preg_match("/rrr/", $text)) {
+			$decl = "\tint rrr = ir & 7;\n";
+		}
+
+		$out .= "OpFunc_t {$key}()\n{\n";
+		$out .= $decl;
+		$out .= $text;
+		$out .= "}\n\n";
+	}
+	print $out;
+
+
+	$out = "";
 
 	$out .= "OpFunc_t OpTable[65536] = {\n";
 	for ($i = 0; $i < 65536; $i++) {
