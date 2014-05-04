@@ -155,7 +155,7 @@ function expand($op)
 
 	// アドレッシングモード (MOVEのデスティネーション部分)
 	if (strpos($op["bits"], "RRRMMM") !== false) {
-		$op["addr2"] = $op["addr"];
+		$op["addr2"] = preg_replace("/PI/", "", $op["addr"]);
 		expand_addr($op, "XX");
 		return;
 	}
