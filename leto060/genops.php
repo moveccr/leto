@@ -39,6 +39,7 @@
 	// ジャンプテーブルを出力
 //	output_switch();
 	output_jumptable();
+//	output_jumpfunc();
 
 	exit(0);
 ?>
@@ -383,9 +384,9 @@ function parse_ops($fp)
 }
 
 //
-// ジャンプテーブルを出力
+// ジャンプテーブルの関数部分を出力
 //
-function output_jumptable()
+function output_jumpfunc()
 {
 	global $table;
 	global $ops;
@@ -408,7 +409,15 @@ function output_jumptable()
 		$out .= "}\n\n";
 	}
 	print $out;
+}
 
+//
+// ジャンプテーブルを出力
+//
+function output_jumptable()
+{
+	global $table;
+	global $ops;
 
 	$out = "";
 
