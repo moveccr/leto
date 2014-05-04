@@ -363,7 +363,9 @@ function parse_ops($fp)
 			}
 		} else {
 			if (preg_match("/^END/", $buf)) {
-				$ops[$opname] = $text;
+				$ops[$opname] = array(
+					"text" => $text,
+				);
 				$text = "";
 				$opname = "";
 			} else {
