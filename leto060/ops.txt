@@ -1,23 +1,23 @@
 BEGIN	ori_ccr
-	fetch_l(next);
+	fetch_b(next);
 	ccr.set(ccr.get() | next);
 END
 
 BEGIN	ori_b_reg
 	fetch_b(next);
-	D(rrr) = (D(rrr) & 0xffffff00) | (next & 0xff);
+	D(rrr) |= (next & 0x00ff);
 	ccr.setMOVEB(D(rrr));
 END
 
 BEGIN	ori_w_reg
 	fetch_w(next)
-	D(rrr) = (D(rrr) & 0xffff0000) | next;
+	D(rrr) |= next;
 	ccr.setMOVEW(D(rrr));
 END
 
 BEGIN	ori_l_reg
 	fetch_l(next)
-	D(rrr) = D(rrr) | next;
+	D(rrr) |= next;
 	ccr.setMOVEW(D[rrr]);
 END
 
