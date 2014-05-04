@@ -37,6 +37,7 @@
 	fclose($fp);
 
 	// ジャンプテーブルを出力
+//	output_switch();
 	output_jumptable();
 
 	exit(0);
@@ -431,4 +432,80 @@ function output_jumptable()
 	print $out;
 }
 
+//
+// switch-case を出力
+//
+function output_switch()
+{
+	global $table;
+	global $ops;
+
+	// (An)+/-(An) のサイズとレジスタ番号によるオフセット
+	// A7.B だけワードサイズになる
+	$sizeoffset = array(
+		"b" => array(1, 1, 1, 1,  1, 1, 1, 2,),
+		"w" => array(2, 2, 2, 2,  2, 2, 2, 2,),
+		"l" => array(4, 4, 4, 4,  4, 4, 4, 4,),
+	);
+
+	$out = "";
+
+	for ($i = 0; $i < 65536; $i++) {
+		// テーブルにないのは不当命令パターン
+		if (!isset($table[$i])) {
+			continue;
+		}
+		$name = $table[$i]["name"];
+
+		// テーブルにはあるが実装がないのはエミュレータ的未実装命令
+		if (!isset($ops[$name])) {
+			// TODO: 警告出すとか
+			continue;
+		}
+
+		$text = $ops[$name]["text"];
+		$size = $table[$i]["size"];
+
+		// rrr は IR の下位3bit に展開
+		$rrr = $i & 7;
+		$text = preg_replace("/rrr/", $rrr, $text);
+
+		// EA を展開
+		if (preg_match("/EA\((.*)\)/", $text, $m)) {
+			$var = $m[1];
+			// C の副作用のある #define 文同様に最後のセミコロンは不要
+			switch (($i >> 3) & 7) {
+			 case 0:	// Dn はここには来ないはず
+			 case 1:	// An はここには来ないはず
+			 case 2:	// (An)
+				$eabuf = "{$var} = A($rrr)";
+				break;
+			 case 3:	// (An)+
+				$eabuf = "{$var} = A($rrr); "
+					. "A($rrr) += {$sizeoffset[$size][$rrr]}";
+				break;
+			 case 4:	// -(An)
+				$eabuf = "A($rrr) -= {$sizeoffset[$size][$rrr]}; "
+					. "{$var} = A($rrr)";
+				break;
+			 default:
+				// TODO: 未実装
+				$eabuf = "EA({$var})";
+			}
+
+			$text = preg_replace("/EA\([^\)]+\)/", $eabuf, $text);
+		}
+
+		// 出力
+		$out .= sprintf(" case 0x%04x:\n", $i);
+		$out .= $text;
+		$out .= "\tbreak;\n\n";
+	}
+
+	$out .= " default:\n";
+	$out .= "\t// TODO: 不当命令パターン\n";
+	$out .= "\tbreak;\n";
+
+	print $out;
+}
 ?>
